@@ -1,0 +1,349 @@
+﻿@using UI.Helper
+@{
+    ViewBag.Title = "Employee";
+}
+
+
+<div class="panel panel-info topmar-10">
+    <div class="panel-heading">
+        @Html.MyActionLink("<span class='fa fa-dashboard fa-1x'></span> Dashboard", "Dashboard", "Index", "Dashboard", null, new { @class = "btn btn-info btn-sm" })
+        @Html.MyActionLink("<span class='fa fa-building fa-1x'></span> Company", "Company", "Index", "Company", null, new { @class = "btn btn-info btn-sm" })
+        @Html.MyActionLink("<span class='fa fa-upload fa-1x'></span> Bulk Employee", "Upload Bulk Employee", "BulkUpload", "Employee", null, new { @class = "btn btn-info btn-sm" })
+        @Html.MyActionLink("<span class='fa fa-upload fa-1x'></span> Bulk KYC", "Upload Bulk KYC", "BulkUpload", "EmployeeKYC", null, new { @class = "btn btn-info btn-sm" })
+        @Html.DropDownList("comp", new SelectList((ViewBag.comp) as SelectList, "Value", "Text"),"Select Company", new { @class = "search-box" })
+        @Html.DropDownList("Status", new SelectList((ViewBag.Status) as SelectList, "Value", "Text"), "Status", new { @class = "search-box" })
+        <input type="text" class="search-box font" id="search" placeholder="Search by" />
+        @Html.DropDownList("SearchFields", new SelectList((ViewBag.SearchFields) as SelectList, "Value", "Text"), new { @class = "search-box" })
+        <i title="search" id="searchbtn" class="fa fa-search btn btn-info"></i>
+        <i title="refresh" id="refreshbtn" class="fa fa-refresh btn btn-success"></i>
+        <i title="Export To Excel" id="export" style="display:none" class="fa fa-file-excel-o fa-1x btn btn-link pull-right"></i>
+    </div>
+    <div class="panel-body">
+        <div id="table"></div>
+    </div>
+</div>
+
+@*Filtering*@
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#export').click(function (e) {
+            var url = "/Employee/ExportMember";
+            window.open(url);
+            e.preventDefault();
+        });
+
+        $("#comp").change(function (e) {
+            e.preventDefault();
+            $('#table').jtable('load', {
+                compid: $('#comp').val()
+            });
+            $('#export').show();
+        });
+
+        $('#searchbtn').click(function (e) {
+            var id = $('#comp').val();
+            if (id == 0) {
+                alert("Select Company first!");
+                return;
+            }
+            $('#table').jtable('load', {
+                status:$('#Status').val(),compid: $('#comp').val(), field: $('#SearchFields').val(), search: $('#search').val()
+            });
+        });
+
+        $('#search').bind('keyup', function (e) {
+            if (e.which == 13) {
+                var id = $('#comp').val();
+                if (id == 0) {
+                    alert("Select Company first!");
+                    return;
+                }
+                $('#table').jtable('load', {
+                    status: $('#Status').val(), compid: $('#comp').val(), field: $('#SearchFields').val(), search: $('#search').val()
+                });
+            }
+        });
+
+
+        $('#refreshbtn').click(function (e) {
+            $('#search').val('');
+            $('#Status').val('');
+            $('#table').jtable('load', {
+                compid: $('#comp').val()
+            });
+        });
+
+    });
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#table').jtable({
+            title: 'Employee Details',
+            paging: true,
+            pagesize: 3,
+            sorting: true,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '@Url.Action("List")',
+                updateAction: '@Url.Action("Update")',
+                deleteAction: '@Url.Action("Delete")',
+            },
+            fields: {
+                Id: {
+                    title: 'Id',
+                    width:'1%',
+                    key: true,
+                    create: false,
+                    edit: false,
+                    list: false
+                },
+                CompId: {
+                    title: 'Company',
+                    width: '2%',
+                    options: '@Url.Action("GetCompanyOptions", "Company")',
+                    edit: false,
+                },
+                Branch: {
+                    title: 'Branch',
+                    width: '2%',
+                    list:false
+                },
+                EmpCode: {
+                    title: 'EmpCode',
+                    width: '2%',
+                    display: function (data) {
+                        if (data.record.Status == 2)
+                            return "<div class='red'>" + data.record.EmpCode + "</div>";
+                        if (data.record.Status == 1)
+                            return "<div class='green'>" + data.record.EmpCode + "</div>";
+                    },
+                },
+                Name: {
+                    title: 'Name',
+                    width: '2%'
+                },
+                UAN: {
+                    title: 'UAN',
+                    width: '2%',
+                },
+                MemberId: {
+                    title: 'MemberId',
+                    width: '2%'
+                },
+                ESIIP: {
+                    title: 'ESIIP',
+                    width: '2%',
+                },
+                Gender: {
+                    title: 'Gender',
+                    width: '1%',
+                    options: { "M": "Male", "F": "Female", "T":"Transgender"}
+                },
+                MaritalStatus: {
+                    title: 'MaritalStatus',
+                    width: '1%',
+                    options: {"M": "Married", "U": "Un-Married", "W": "Widow/Widower", "D": "Divorse" }
+                },
+                Mobile: {
+                    title: 'Mobile',
+                    width: '2%',
+                    list: false
+                },
+                EmailId: {
+                    title: 'EmailId',
+                    width: '2%',
+                    list: false
+                },
+                Nationality: {
+                    title: 'Nationality',
+                    width: '2%',
+                    options: '@Url.Action("GetNationality", "Country")',
+                    list: false
+                },
+                ForHName: {
+                    title: 'F/H Name',
+                    width: '2%'
+                },
+                ForHFlag: {
+                    title: 'F/H',
+                    width: '2%',
+                    options:{"F":"Father","H":"Husband"}
+                },
+                DOB: {
+                    title: 'DOB',
+                    width: '2%',
+                    type: 'date',
+                    display: function (data) {
+                        if (data.record.DOB != null)
+                            return moment(data.record.DOB).format('DD/MM/YYYY')
+                    },
+                },
+                DOJ: {
+                    title: 'DOJ',
+                    width: '2%',
+                    type: 'date',
+                    display: function (data) {
+                        if (data.record.DOJ != null)
+                            return moment(data.record.DOJ).format('DD/MM/YYYY')
+                    },
+                },
+                DOE: {
+                    title: 'DOE',
+                    width: '2%',
+                    type: 'date',
+                    display: function (data) {
+                        if (data.record.DOE != null)
+                            return moment(data.record.DOE).format('DD/MM/YYYY')
+                    },
+                },
+                CellingEPF: {
+                    title: 'CellingEPF',
+                    width: '1%',
+                    options: { "Y": "Yes", "N": "No" }
+                },
+                CellingEPS: {
+                    title: 'CellingEPS',
+                    width: '1%',
+                    options: { "Y": "Yes","Z": "Zero", "N": "No" }
+                },
+                VPF: {
+                    title: 'VPF',
+                    width: '2%'
+                },
+                PFExempted: {
+                    title: 'PFExempted',
+                    width: '2%',
+                    options: { "N": "No", "Y": "Yes" }
+                },
+                ESIExempted: {
+                    title: 'ESIExempted',
+                    width: '2%',
+                    options: { "Y": "Yes", "N": "No" }
+                },
+                PMRPY: {
+                    title: 'PMRPY',
+                    width: '1%',
+                    edit: false,
+                    create:false,
+                    options: { "1": "Yes", "2": "No", "": "No" },
+                    visibility: 'hidden'
+                },
+                KYC: {
+                    title: '',
+                    width: '0.1%',
+                    sorting: false,
+                    create: false,
+                    edit: false,
+                    listClass: 'child-opener-image-column',
+                    display: function (data) {
+                        var $img = $('<i title="KYC" class="fa fa-file-text fa-1x pointer text-primary"/>');
+                        $img.click(function () {
+                            $('#table').jtable('openChildTable', $img.closest('tr'),
+                            {
+                                title: data.record.Name + " - KYC",
+                                paging: false,
+                                pagesize: 3,
+                                actions: {
+                                    listAction: '@Url.Action("GetKYC","Employee")?empid=' + data.record.Id,
+                                    createAction: '@Url.Action("AddKYC", "Employee")?empid=' + data.record.Id,
+                                    updateAction: '@Url.Action("UpdateKYC", "Employee")',
+                                },
+                                fields: {
+                                    Id: {
+                                        title: 'Id',
+                                        width: '1%',
+                                        key: true,
+                                        create: false,
+                                        edit: false,
+                                        list: false
+                                    },
+                                    DoxType: {
+                                        title: 'DoxType',
+                                        width: '4%',
+                                        options: '@Url.Action("GetKYCdoxtype", "Employee")',
+
+                                    },
+                                    DocumentNumber: {
+                                        title: 'DocumentNumber',
+                                        width: '4%'
+                                    },
+                                    NameonDox: {
+                                        title: 'NameonDox',
+                                        width: '4%'
+                                    },
+                                    Other: {
+                                        title: 'Other',
+                                        width: '4%'
+                                    },
+                                    IssueDate: {
+                                        title: 'IssueDate',
+                                        width: '2%',
+                                        type: 'date',
+                                        display: function (data) {
+                                            if (data.record.IssueDate != null)
+                                                return moment(data.record.IssueDate).format('DD/MMM/YYYY')
+                                        },
+                                    },
+                                    Exipiry: {
+                                        title: 'Exipiry',
+                                        width: '2%',
+                                        type: 'date',
+                                        display: function (data) {
+                                            if (data.record.Exipiry != null)
+                                                return moment(data.record.Exipiry).format('DD/MMM/YYYY')
+                                        },
+                                    },
+                                    Place: {
+                                        title: 'PlaceOfIssue',
+                                        width: '4%'
+                                    },
+                                },
+                                formCreated: function (event, data) {
+                                    $("#Edit-IssueDate").removeClass('hasDatepicker');
+                                    $("#Edit-IssueDate").datepicker({ yearRange: "-30:+0", changeMonth: true, changeYear: true, dateFormat: 'yy-mm-dd' });
+
+                                    $("#Edit-Exipiry").removeClass('hasDatepicker');
+                                    $("#Edit-Exipiry").datepicker({ yearRange: "-0:+30", changeMonth: true, changeYear: true, dateFormat: 'yy-mm-dd' });
+                                    data.form.validationEngine();
+                                },
+                                formSubmitting: function (event, data) {
+                                    return data.form.validationEngine('validate');
+                                },
+                                formClosed: function (event, data) {
+                                    data.form.validationEngine('hide');
+                                    data.form.validationEngine('detach');
+                                }
+                            }, function (data) {
+                                data.childTable.jtable('load');
+                            });
+                        });
+                        return $img;
+                    }
+                },
+
+            },
+            formCreated: function (event, data) {
+                data.form.find('input[name="Name"]').addClass('validate[required]');
+                $("#Edit-DOB").removeClass('hasDatepicker');
+                $("#Edit-DOB").datepicker({ yearRange: "-58:-12", changeMonth: true, changeYear: true, dateFormat: 'yy-mm-dd' });
+
+                $("#Edit-DOJ").removeClass('hasDatepicker');
+                $("#Edit-DOJ").datepicker({ yearRange: "-58:+0", changeMonth: true, changeYear: true, dateFormat: 'yy-mm-dd' });
+
+                var compid = $("#comp").val();
+                if (compid != '') { $('#Edit-CompId').val(compid); }
+                data.form.validationEngine();
+            },
+            formSubmitting: function (event, data) {
+                return data.form.validationEngine('validate');
+            },
+            formClosed: function (event, data) {
+                data.form.validationEngine('hide');
+                data.form.validationEngine('detach');
+            }
+        });
+    });
+</script>

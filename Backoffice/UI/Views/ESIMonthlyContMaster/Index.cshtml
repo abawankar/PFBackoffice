@@ -1,0 +1,286 @@
+﻿@using UI.Helper
+@{
+    ViewBag.Title = "ESI Monthly Contribution";
+}
+
+<div class="panel panel-info topmar-10">
+    <div class="panel-heading">
+        @Html.MyActionLink("<span class='fa fa-dashboard fa-1x'></span> Dashboard", "Dashboard", "Index", "Dashboard", null, new { @class = "btn btn-info btn-sm" })
+        <div class="btn-group dropdown">
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="caret"></span>
+                <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu">
+                <li>@Html.ActionLink("File Monthly Contribution", "PrepareMonthlyContribution", "ESIMonthlyContMaster")</li>
+            </ul>
+        </div>
+        @Html.DropDownList("comp", new SelectList((ViewBag.comp) as SelectList, "Value", "Text"), "Select Company", new { @class = "search-box" })
+        <i title="refresh" id="refreshbtn" class="fa fa-refresh btn btn-success"></i>
+        @*<i title="Download Payment receipt" id="pmtrcpt" class="fa fa-download btn btn-success"> Payment Receipt</i>*@
+    </div>
+    <div class="panel-body">
+        <div id="table" class="table-responsive"></div>
+    </div>
+</div>
+
+@*Filtering*@
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#refreshbtn').click(function (e) {
+            $('#comp').val('');
+            $('#table').jtable('load');
+        });
+
+        $("#comp").change(function (e) {
+            e.preventDefault();
+            $('#table').jtable('load', {
+                id: $('#comp').val()
+            });
+        });
+
+        $('#pmtrcpt').click(function (e) {
+            var url = "https://unifiedportal-epfo.epfindia.gov.in/publicPortal/no-auth/misReport/home/loadSearchTrrnHome"
+            window.open(url);
+            e.preventDefault();
+        });
+    });
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#load').hide();
+        $('#load1').hide();
+        $("#message").fadeIn("Slow").delay(2000).fadeOut("Slow");
+
+        $('#table').jtable({
+            title: 'ESI Monthly Contribution',
+            paging: true,
+            pagesize: 3,
+            sorting: false,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '@Url.Action("List")',
+                updateAction: '@Url.Action("Update")',
+            },
+            fields: {
+                Id: {
+                    title: 'Id',
+                    width: '1%',
+                    key: true,
+                    create: false,
+                    edit: false,
+                    list: false
+                },
+                CompId: {
+                    title: 'Company',
+                    width: '4%',
+                    options: '@Url.Action("GetCompanyOptions", "Company")',
+                    edit: false,
+                },
+                ContType: {
+                    title: 'ContType',
+                    width: '2%',
+                    options: { "M": "MonthlyContribution", "S": "SupplimentaryContribution" },
+                    edit: false,
+                },
+                ContributionDetails: {
+                    title: 'WageMonth',
+                    width: '0.1%',
+                    sorting: false,
+                    create: false,
+                    edit: false,
+                    listClass: 'child-opener-image-column',
+                    display: function (comp) {
+                        var $img = $('<span title="ContributionDetails" class="1x pointer text-primary">' + comp.record.MonthYear + "</span>");
+                        $img.click(function () {
+                            $('#table').jtable('openChildTable', $img.closest('tr'),
+                            {
+                                title: "Contribution Details-" + comp.record.MonthYear,
+                                paging: true,
+                                pagesize: 3,
+                                actions: {
+                                    listAction: '@Url.Action("FullDetails")?id=' + comp.record.Id
+                                },
+                                fields: {
+                                    Id: {
+                                        title: 'Id',
+                                        width: '1%',
+                                        key: true,
+                                        create: false,
+                                        edit: false,
+                                        list: false
+                                    },
+                                    Branch: {
+                                        title: 'Branch',
+                                        width: '1%',
+                                    },
+                                    EmpCode: {
+                                        title: 'EmpCode',
+                                        width: '1%',
+                                        input: function (data) {
+                                            if (data.value) {
+                                                return '<input type="text" readonly class="jtable-input-readonly" name="EmpCode" value="' + data.value + '"/>';
+                                            }
+                                        }
+                                    },
+                                    Name: {
+                                        title: 'Name',
+                                        width: '2%',
+                                        input: function (data) {
+                                            if (data.value) {
+                                                return '<input type="text" readonly class="jtable-input-readonly" name="Name" value="' + data.value + '"/>';
+                                            }
+                                        }
+                                    },
+                                    IP: {
+                                        title: 'IP',
+                                        width: '2%',
+                                        input: function (data) {
+                                            if (data.value) {
+                                                return '<input type="text" readonly class="jtable-input-readonly" name="UAN" value="' + data.value + '"/>';
+                                            }
+                                        }
+                                    },
+                                    ContType: {
+                                        title: 'ContType',
+                                        width: '2%',
+                                        options: { "M": "MonthlyContribution", "S": "SupplimentaryContribution" },
+                                        edit: false,
+                                    },
+                                    MonthYear: {
+                                        title: 'MonthYear',
+                                        width: '2%',
+                                        input: function (data) {
+                                            if (data.value) {
+                                                return '<input type="text" readonly class="jtable-input-readonly" name="MonthYear" value="' + data.value + '"/>';
+                                            }
+                                        }
+                                    },
+                                    GrossWages: {
+                                        title: 'GrossWages',
+                                        width: '2%',
+                                        listClass: 'text-right',
+                                    },
+                                    IPCont: {
+                                        title: 'IPCont',
+                                        width: '2%',
+                                        listClass: 'text-right',
+                                    },
+                                    Days: {
+                                        title: 'Days',
+                                        width: '2%',
+                                        listClass: 'text-right',
+                                    },
+                                },
+                            }, function (data) {
+                                data.childTable.jtable('load');
+                            });
+                        });
+                        return $img;
+                    }
+                },
+                ESIMember: {
+                    title: 'ESIMember',
+                    width: '1%',
+                    listClass:'text-center',
+                    edit: false,
+                },
+                TotalIP: {
+                    title: 'TotalIPContributon',
+                    width: '2%',
+                    edit: false,
+                    listClass: 'text-right',
+                    display: function (data) {
+                        return addCommas(data.record.TotalIP.toFixed(0));
+                    }
+                },
+                ERCont: {
+                    title: 'EmployerContributon',
+                    width: '2%',
+                    listClass: 'text-right',
+                    edit: false,
+                    display: function (data) {
+                        return addCommas(data.record.ERCont.toFixed(0));
+                    }
+                },
+                TotalCont: {
+                    title: 'TotalContribution',
+                    width: '2%',
+                    listClass: 'text-right',
+                    edit: false,
+                    display: function (data) {
+                        return addCommas(data.record.TotalCont.toFixed(0));
+                    }
+                },
+                TotalWages: {
+                    title: 'TotalWages',
+                    width: '2%',
+                    listClass: 'text-right',
+                    edit: false,
+                    display: function (data) {
+                        return addCommas(data.record.TotalWages.toFixed(0));
+                    }
+                },
+                ChallanNo: {
+                    title: 'ChallanNo',
+                    width: '2%',
+                },
+                Date: {
+                    title: 'Date',
+                    width: '2%',
+                    type: 'date',
+                    display: function (data) {
+                        if (data.record.Date != null)
+                            return moment(data.record.Date).format('DD/MM/YYYY')
+                    },
+                },
+                print: {
+                    title: "",
+                    edit: false,
+                    create: false,
+                    width: '1%',
+                    listClass: 'text-center',
+                    display: function (data) {
+                        var $img = $('<i title="ECR File" class="fa fa-file-pdf-o fa-1x pointer text-primary redico"/>');
+                        $img.click(function () {
+                            //var url = "/CourierInvoice/Print/" + data.record.Id;
+                            var url = "/ESIMonthlyContMaster/PrintECR/" + data.record.Id;
+                            window.open(url);
+                        });
+                        return $img;
+                    }
+                },
+                XlsECR: {
+                    title: "",
+                    edit: false,
+                    create: false,
+                    width: '1%',
+                    listClass: 'text-center',
+                    display: function (data) {
+                        var $img = $('<i title="Download File to upload in ESI" class="fa fa-file-excel-o fa-1x pointer text-primary greenico"/>');
+                        $img.click(function () {
+                            url = "ESIMonthlyContMaster/ECRxls?id=" + data.record.Id;
+                            window.open(url);
+                        });
+                        return $img;
+                    }
+                },
+            },
+            formCreated: function (event, data) {
+                data.form.validationEngine();
+            },
+            formSubmitting: function (event, data) {
+                return data.form.validationEngine('validate');
+            },
+            formClosed: function (event, data) {
+                data.form.validationEngine('hide');
+                data.form.validationEngine('detach');
+            }
+        });
+
+        $('#table').jtable('load');
+    });
+</script>
+

@@ -1,0 +1,67 @@
+﻿@using UI.Helper
+@{
+    ViewBag.Title = "Service Name";
+}
+
+<div class="panel panel-info topmar-10">
+    <div class="panel-heading">
+        @Html.MyActionLink("<span class='fa fa-dashboard fa-1x'></span> Dashboard", "Dashboard", "Index", "Dashboard", null, new { @class = "btn btn-info btn-sm" })
+        @Html.Partial("_BillingMenu")
+    </div>
+    <div class="panel-body">
+        <div id="table"></div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#table').jtable({
+            title: 'Service Name',
+            paging: true,
+            pagesize: 3,
+            sorting: true,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '@Url.Action("List")',
+                updateAction: '@Url.Action("Update")',
+                createAction: '@Url.Action("Create")'
+            },
+            fields: {
+                Id: {
+                    title: 'Id',
+                    width:'1%',
+                    key: true,
+                    create: false,
+                    edit: false,
+                    list: false
+                },
+                Name: {
+                    title: 'Name',
+                    width: '5%'
+                },
+                SAC: {
+                    title: 'SAC Code',
+                    width: '2%'
+                },
+                Rate: {
+                    title: 'Rate(%)',
+                    width: '2%',
+                    options: { "0": "0%", "5": "5%", "12": "12%", "18": "18%", "28": "28%", }
+                },
+            },
+            formCreated: function (event, data) {
+                data.form.validationEngine();
+            },
+            formSubmitting: function (event, data) {
+                return data.form.validationEngine('validate');
+            },
+            formClosed: function (event, data) {
+                data.form.validationEngine('hide');
+                data.form.validationEngine('detach');
+            }
+        });
+        $('#table').jtable('load');
+    });
+</script>
+
+

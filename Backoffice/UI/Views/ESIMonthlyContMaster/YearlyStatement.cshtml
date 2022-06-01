@@ -1,0 +1,146 @@
+﻿@using UI.Helper
+@{
+    ViewBag.Title = "ESIYearlyStatement";
+}
+
+
+<div class="panel panel-info topmar-10">
+    <div class="panel-heading">
+        @Html.MyActionLink("<span class='fa fa-dashboard fa-1x'></span> Dashboard", "Dashboard", "Index", "Dashboard", null, new { @class = "btn btn-info btn-sm" })
+        @Html.DropDownList("fy", new SelectList((ViewBag.fy) as SelectList, "Value", "Text"), "Select Year", new { @class = "search-box" })
+        @Html.DropDownList("comp", new SelectList((ViewBag.comp) as SelectList, "Value", "Text"), "Select Company", new { @class = "search-box" })
+        <i title="search" id="searchbtn" class="fa fa-search btn btn-info"></i>
+        <i title="Print" id="printbtn" class="fa fa-print btn btn-info"></i>
+    </div>
+    <div class="panel-body">
+        <div id="table"></div>
+    </div>
+</div>
+
+@*Filtering*@
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#printbtn').hide();
+        $('#printbtn').click(function (e) {
+            var fy = $('#fy').val();
+            url = "PrintStatement?fy=" + fy;
+            window.open(url);
+        });
+
+        $('#searchbtn').click(function (e) {
+            var id = $('#comp').val();
+            var fy = $('#fy').val();
+
+            if (id == 0) {
+                alert("Select Company first!");
+                return;
+            }
+            if (fy == "") {
+                alert("Select Years first!");
+                return;
+            }
+
+            $('#table').jtable('load', {
+                compid: id, fy: fy
+            });
+            $('#printbtn').show();
+        });
+
+    });
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#table').jtable({
+            title: '',
+            paging: false,
+            pagesize: 3,
+            sorting: false,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '@Url.Action("ESIStatementList")',
+            },
+            fields: {
+                Id: {
+                    title: 'Id',
+                    width:'1%',
+                    key: true,
+                    create: false,
+                    edit: false,
+                    list: false
+                },
+                MonthYear: {
+                    title: 'MonthYear',
+                    width: '2%',
+                },
+                CompId: {
+                    title: 'Company',
+                    width: '4%',
+                    options: '@Url.Action("GetCompanyOptions", "Company")',
+                    edit: false,
+                },
+                ContType: {
+                    title: 'ContType',
+                    width: '2%',
+                    options: { "M": "MonthlyContribution", "S": "SupplimentaryContribution" },
+                    edit: false,
+                },
+                ESIMember: {
+                    title: 'ESIMember',
+                    width: '1%',
+                    edit: false,
+                },
+                TotalIP: {
+                    title: 'TotalIPContributon',
+                    width: '2%',
+                    edit: false,
+                    display: function (data) {
+                        return addCommas(data.record.TotalIP.toFixed(0));
+                    }
+                },
+                ERCont: {
+                    title: 'EmployerContributon',
+                    width: '2%',
+                    edit: false,
+                    display: function (data) {
+                        return addCommas(data.record.ERCont.toFixed(0));
+                    }
+                },
+                TotalCont: {
+                    title: 'TotalContribution',
+                    width: '2%',
+                    edit: false,
+                    display: function (data) {
+                        return addCommas(data.record.TotalCont.toFixed(0));
+                    }
+                },
+                TotalWages: {
+                    title: 'TotalWages',
+                    width: '2%',
+                    edit: false,
+                    display: function (data) {
+                        return addCommas(data.record.TotalWages.toFixed(0));
+                    }
+                },
+                ChallanNo: {
+                    title: 'ChallanNo',
+                    width: '2%',
+                },
+                Date: {
+                    title: 'Date',
+                    width: '2%',
+                    type: 'date',
+                    display: function (data) {
+                        if (data.record.Date != null)
+                            return moment(data.record.Date).format('DD/MM/YYYY')
+                    },
+                },
+            },
+        });
+    });
+</script>
+
+
+

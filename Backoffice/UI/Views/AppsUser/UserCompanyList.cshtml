@@ -1,0 +1,87 @@
+﻿@{
+    ViewBag.Title = "Company List";
+}
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        Users: @Html.DropDownList("Employee", new SelectList((ViewBag.Employee) as SelectList, "Value", "Text"), new { @class = "search-box" })
+        <button role="button" class="btn btn-success btn-xs" id="EmpRights" title="Assign Compnay">
+            <span class="fa fa-plus"></span>  Add
+        </button>
+    </div>
+    <div class="panel-body">
+        <div id="CompanyTable"></div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#CompanyTable').jtable({
+            title: 'Comapny List',
+            paging: true,
+            pagesize: 3,
+            sorting: true,
+            selecting: true,
+            multiselect: true,
+            selectOnRowClick:false,
+            selectingCheckboxes: true,
+            actions: {
+                listAction: '@Url.Action("ListOfCompany")'
+            },
+            fields: {
+                Id: {
+                    title: 'Id',
+                    width: '1%',
+                    key: true,
+                    create: false,
+                    edit: false,
+                    list: false
+                },
+                Code: {
+                    title: 'Code',
+                    width: '2%'
+                },
+                Name: {
+                    title: 'Name',
+                    width: '12%'
+                },
+            },
+            selectionChanged: function () {
+                var $selecedRows = $('#CompanyTable').jtable('selectedRows');
+                if ($selecedRows.length != 0) {
+                    $('#EmpRights').prop('disabled', false);
+                }
+                else {
+                    $('#EmpRights').prop('disabled', false);
+                }
+            }
+        });
+        $('#CompanyTable').jtable('load', { id: $('#Employee').val() });
+
+        //Delete selected currencies
+        $('#EmpRights').button().click(function () {
+            var emp = $("#Employee").val();
+            var $selecedRows = $('#CompanyTable').jtable('selectedRows');
+            var list = emp;
+            $selecedRows.each(function () {
+                var record = $(this).data('record');
+                list = list + "," + record.Id;
+            });
+            $.ajax({
+                url: "@Url.Action("AddCompany", "AppsUser")",
+                type: 'POST',
+                datatype: 'HTML',
+                data: { id: emp, list: list },
+                success: function (data) {
+                    alert("Company Assigned");
+                    $('#CompanyTable').jtable('load', {
+                        id: $('#Employee').val()
+                    });
+                },
+                error: function () {
+                }
+            });
+        });
+    });
+</script>

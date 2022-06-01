@@ -1,0 +1,208 @@
+﻿@using UI.Helper
+@{
+    ViewBag.Title = "Bulk Upload - Company";
+}
+
+<div class="panel panel-info topmar-10">
+    <div class="panel-heading">
+        @Html.MyActionLink("<span class='fa fa-dashboard fa-1x'></span> Dashboard", "Dashboard", "Index", "Dashboard", null, new { @class = "btn btn-info btn-sm" })
+        @Html.MyActionLink("<span class='fa fa-building fa-1x'></span> Company", "Company", "Index", "Company", null, new { @class = "btn btn-info btn-sm" })
+        <button id="upload" type="button" class="btn btn-info btn-sm">
+            <span class="fa fa-upload"></span> Select CSV File
+            <span id="load" class="fa fa-spin fa-spinner"></span>
+        </button>
+
+        <button id="save" type="button" style="display:none" class="btn btn-success pull-right btn-sm">
+            <span class="fa fa-floppy-o"></span> Save
+            <span id="load1" class="fa fa-spin fa-spinner"></span>
+        </button>
+        <i title="refresh" id="help" class="fa fa-question btn btn-success"> Help File</i>
+
+        @if (TempData["Message"] != null)
+        {
+            <div id="message" class="success"> @TempData["Message"] </div>
+        }
+    </div>
+    <div class="panel-body">
+        <input type="file" id="UploadImg" multiple style="display:none" />
+        <div id="dialog-file" style="display: none"> </div>
+        <div id="table" class="table-responsive"></div>
+    </div>
+</div>
+
+@*Filtering*@
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#help').click(function (e) {
+            var url = "/Upload/HelpFile/BulkCompany.xls"
+            window.open(url);
+            e.preventDefault();
+        });
+    });
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#load').hide();
+        $('#load1').hide();
+        $("#message").fadeIn("Slow").delay(2000).fadeOut("Slow");
+
+        $('#table').jtable({
+            title: 'Draft Company',
+            paging: false,
+            pagesize: 3,
+            sorting: false,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '@Url.Action("BulkList")',
+            },
+            fields: {
+                Id: {
+                    title: 'Id',
+                    width: '1%',
+                    key: true,
+                    create: false,
+                    edit: false,
+                    list: false
+                },
+                Code: {
+                    title: 'Code',
+                    width: '2%'
+                },
+                Name: {
+                    title: 'Name',
+                    width: '2%'
+                },
+                PAN: {
+                    title: 'PAN',
+                    width: '2%'
+                },
+                CIN: {
+                    title: 'CIN',
+                    width: '2%'
+                },
+                EstablishmentCode: {
+                    title: 'EstablishmentCode',
+                    width: '2%'
+                },
+                ESIRegistrationNumber: {
+                    title: 'ESIRegistrationNumber',
+                    width: '2%'
+                },
+                Address: {
+                    title: 'Address',
+                    width: '2%',
+                    type: 'textarea'
+                },
+                ServiceTax: {
+                    title: 'ServiceTax',
+                    width: '2%'
+                },
+                Emailid: {
+                    title: 'Emailid',
+                    width: '2%'
+                },
+                PhoneNo: {
+                    title: 'PhoneNo',
+                    width: '2%'
+                },
+                
+                StatutoryCodeId: {
+                    title: 'Statutory',
+                    width: '2%',
+                    options: '@Url.Action("GetStatutoryCodeOptions", "StatutoryCode")',
+                },
+                
+                RegDate: {
+                    title: 'RegDate',
+                    width: '2%',
+                    type: 'date',
+                    display: function (data) {
+                        if (data.record.RegDate != null)
+                            return moment(data.record.RegDate).format('DD/MMM/YYYY')
+                    },
+                },
+                RegNumber: {
+                    title: 'RegNumber',
+                    width: '2%'
+                },
+                WebSite: {
+                    title: 'WebSite',
+                    width: '2%'
+                },
+            },
+            formCreated: function (event, data) {
+                data.form.find('input[name="Name"]').addClass('validate[required]');
+                data.form.validationEngine();
+            },
+            formSubmitting: function (event, data) {
+                return data.form.validationEngine('validate');
+            },
+            formClosed: function (event, data) {
+                data.form.validationEngine('hide');
+                data.form.validationEngine('detach');
+            }
+        });
+
+        $("#upload").click(function (e) {
+            e.preventDefault();
+            $("#UploadImg").trigger('click');
+        });
+
+
+        $("#save").click(function (e) {
+            e.preventDefault();
+            $('#load1').show();
+            $.ajax({
+                url: "/Company/SaveBulk",
+                type: "POST",
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    //code after success
+                    $('#save').hide();
+                    $('#table').jtable('load');
+                    alert(response);
+                    $('#load1').hide();
+                },
+                error: function (er) {
+                    alert(er);
+                }
+
+            });
+        });
+    });
+</script>
+
+<script type="text/javascript">
+
+    $("#UploadImg").change(function () {
+        $('#load').show();
+        var data = new FormData();
+        var files = $("#UploadImg").get(0).files;
+        if (files.length > 0) {
+            for (i = 0; i < files.length; i++) {
+                data.append("MyImages"+i,files[i]);
+            }
+        }
+        $.ajax({
+            url: "/Company/UploadFile",
+            type: "POST",
+            processData: false,
+            contentType: false,
+            data: data,
+            success: function (response) {
+                //code after success
+                $('#table').jtable('load');
+                $('#load').hide();
+                $('#save').show();
+                alert(response);
+            },
+            error: function (er) {
+                alert(er);
+            }
+
+        });
+    });
+</script>

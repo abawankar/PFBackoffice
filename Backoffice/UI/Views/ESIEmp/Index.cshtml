@@ -1,0 +1,218 @@
+﻿@using UI.Helper
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{
+    ViewBag.Title = "ESIEmployee";
+}
+
+
+<div class="panel panel-info topmar-10">
+    <div class="panel-heading">
+        <label>Please add New ESI Employee</label>
+    </div>
+    <div class="panel-body">
+        <div id="table"></div>
+    </div>
+</div>
+
+@*Filtering*@
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#export').click(function (e) {
+            var url = "/Employee/ExportMember";
+            window.open(url);
+            e.preventDefault();
+        });
+
+        $("#comp").change(function (e) {
+            e.preventDefault();
+            $('#table').jtable('load', {
+                compid: $('#comp').val()
+            });
+            $('#export').show();
+        });
+
+        $('#searchbtn').click(function (e) {
+            var id = $('#comp').val();
+            if (id == 0) {
+                alert("Select Company first!");
+                return;
+            }
+            $('#table').jtable('load', {
+                status:$('#Status').val(),compid: $('#comp').val(), field: $('#SearchFields').val(), search: $('#search').val()
+            });
+        });
+
+        $('#search').bind('keyup', function (e) {
+            if (e.which == 13) {
+                var id = $('#comp').val();
+                if (id == 0) {
+                    alert("Select Company first!");
+                    return;
+                }
+                $('#table').jtable('load', {
+                    status: $('#Status').val(), compid: $('#comp').val(), field: $('#SearchFields').val(), search: $('#search').val()
+                });
+            }
+        });
+
+
+        $('#refreshbtn').click(function (e) {
+            $('#search').val('');
+            $('#Status').val('');
+            $('#table').jtable('load', {
+                compid: $('#comp').val()
+            });
+        });
+
+    });
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#table').jtable({
+            title: 'ESI Employee Details',
+            paging: true,
+            pagesize: 3,
+            sorting: false,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '@Url.Action("List")',
+                updateAction: '@Url.Action("Update")',
+                deleteAction: '@Url.Action("Delete")',
+            },
+            fields: {
+                Id: {
+                    title: 'Id',
+                    width:'1%',
+                    key: true,
+                    create: false,
+                    edit: false,
+                    list: false
+                },
+                CompName: {
+                    title: 'CompanyName',
+                    width: '2%',
+                    create: false,
+                    edit:false
+                },
+                Branch: {
+                    title: 'Branch',
+                    width: '2%',
+                    list:false,
+                    edit: false,
+                },
+                EmpCode: {
+                    title: 'EmpCode',
+                    width: '2%',
+                    edit: false,
+                },
+                Name: {
+                    title: 'Name',
+                    width: '2%',
+                    inputClass: 'validate[required]',
+                    edit: false,
+                },
+                FName: {
+                    title: 'FatherName',
+                    width: '2%',
+                    inputClass: 'validate[required]',
+                    edit: false,
+                },
+                DOB: {
+                    title: 'DOB',
+                    width: '2%',
+                    type: 'date',
+                    edit: false,
+                    display: function (data) {
+                        if (data.record.DOB != null)
+                            return moment(data.record.DOB).format('DD/MM/YYYY')
+                    },
+                },
+                DOJ: {
+                    title: 'DOJ',
+                    width: '2%',
+                    type: 'date',
+                    edit: false,
+                    display: function (data) {
+                        if (data.record.DOJ != null)
+                            return moment(data.record.DOJ).format('DD/MM/YYYY')
+                    },
+                },
+                Gender: {
+                    title: 'Gender',
+                    width: '1%',
+                    edit: false,
+                    options: { "Male": "Male", "Female": "Female", "Transgender": "Transgender" }
+                },
+                PAddress: {
+                    title: 'PresentAddress',
+                    width: '2%',
+                    type: 'textarea',
+                    edit: false,
+                    inputClass: 'validate[required]',
+                },
+                PrAddress: {
+                    title: 'PermanentAddress',
+                    width: '2%',
+                    edit: false,
+                    type: 'textarea'
+                },
+                NName: {
+                    title: 'NomineeName',
+                    width: '2%',
+                    edit: false,
+                    inputClass: 'validate[required]',
+                },
+                NomRelation: {
+                    title: 'NomineeRelation',
+                    width: '2%',
+                    edit: false,
+                    options: { "Father": "Father", "Wife": "Wife", "Husband": "Husband" }
+                },
+                NomAddress: {
+                    title: 'NomineetAddress',
+                    width: '2%',
+                    edit: false,
+                    type: 'textarea'
+                },
+                OldIns: {
+                    title: 'OldIns Noifany',
+                    width: '2%',
+                    edit: false,
+                },
+                Status: {
+                    title: 'Status',
+                    width: '2%',
+                    options: { "0": "Not Register", "1": "Register" }
+                },
+            },
+            formCreated: function (event, data) {
+                $("#Edit-DOB").removeClass('hasDatepicker');
+                $("#Edit-DOB").datepicker({ yearRange: "-58:-12", changeMonth: true, changeYear: true, dateFormat: 'yy-mm-dd' });
+
+                $("#Edit-DOJ").removeClass('hasDatepicker');
+                $("#Edit-DOJ").datepicker({ yearRange: "-58:+0", changeMonth: true, changeYear: true, dateFormat: 'yy-mm-dd' });
+
+                var compid = $("#comp").val();
+                if (compid != '') { $('#Edit-CompId').val(compid); }
+                data.form.validationEngine();
+            },
+            formSubmitting: function (event, data) {
+                return data.form.validationEngine('validate');
+            },
+            formClosed: function (event, data) {
+                data.form.validationEngine('hide');
+                data.form.validationEngine('detach');
+            }
+        });
+        $('#table').jtable('load');
+    });
+</script>
+
+

@@ -1,0 +1,178 @@
+﻿@using UI.Helper
+@{
+    ViewBag.Title = "Member Missing Details";
+}
+
+<div class="panel panel-info topmar-10">
+    <div class="panel-heading">
+        @Html.MyActionLink("<span class='fa fa-dashboard fa-1x'></span> Dashboard", "Dashboard", "Index", "Dashboard", null, new { @class = "btn btn-info btn-sm" })
+        @Html.Partial("_CMCMenu")
+        <button id="upload" type="button" class="btn btn-info btn-sm">
+            <span class="fa fa-upload"></span> Select CSV File
+            <span id="load" class="fa fa-spin fa-spinner"></span>
+        </button>
+        <button id="genrateFile" type="button" class="btn btn-info btn-sm pull-right">
+            <span class="fa fa-upload"></span> Genrate Missing Details File
+        </button>
+
+        <button id="save" type="button" style="display:none" class="btn btn-success btn-sm">
+            <span class="fa fa-floppy-o"></span> Save
+            <span id="load1" class="fa fa-spin fa-spinner"></span>
+        </button>
+    </div>
+    <div class="panel-body">
+        <input type="file" id="UploadImg" multiple style="display:none" />
+        <div id="dialog-file" style="display: none"> </div>
+        <div id="table" class="table-responsive"></div>
+    </div>
+</div>
+
+@*Filtering*@
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#genrateFile').click(function (e) {
+            var url = "/CMCMember/GenrateFile";
+            window.open(url);
+            e.preventDefault();
+        });
+
+        $('#help').click(function (e) {
+            var url = "/Upload/HelpFile/CMCMember.xls"
+            window.open(url);
+            e.preventDefault();
+        });
+    });
+</script>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#load').hide();
+        $('#load1').hide();
+        $("#message").fadeIn("Slow").delay(2000).fadeOut("Slow");
+
+        $('#table').jtable({
+            title: 'Update missing details of member',
+            paging: false,
+            pagesize: 3,
+            sorting: false,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '@Url.Action("BulkMissing")',
+            },
+            fields: {
+                Id: {
+                    title: 'Id',
+                    width: '1%',
+                    key: true,
+                    create: false,
+                    edit: false,
+                    list: false
+                },
+                Code: {
+                    title: 'CMCCode',
+                    width: '1%',
+                },
+                Name: {
+                    title: 'Name',
+                    width: '2%'
+                },
+                BankAc: {
+                    title: 'BankAc',
+                    width: '2%',
+                },
+                IFSC: {
+                    title: 'IFSC',
+                    width: '2%',
+                },
+                Mobile: {
+                    title: 'Mobile',
+                    width: '2%',
+                },
+                PAN: {
+                    title: 'PAN',
+                    width: '2%',
+                },
+                Aadhaar: {
+                    title: 'Aadhaar',
+                    width: '2%',
+                },
+               
+            },
+            formCreated: function (event, data) {
+                data.form.validationEngine();
+            },
+            formSubmitting: function (event, data) {
+                return data.form.validationEngine('validate');
+            },
+            formClosed: function (event, data) {
+                data.form.validationEngine('hide');
+                data.form.validationEngine('detach');
+            }
+        });
+
+        $("#upload").click(function (e) {
+            e.preventDefault();
+            $("#UploadImg").trigger('click');
+        });
+
+
+        $("#save").click(function (e) {
+            e.preventDefault();
+            $('#load1').show();
+            $.ajax({
+                url: "/CMCMember/SaveMissing",
+                type: "POST",
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    //code after success
+                    $('#save').hide();
+                    $('#table').jtable('load');
+                    alert(response);
+                    $('#load1').hide();
+                },
+                error: function (er) {
+                    alert(er);
+                }
+
+            });
+        });
+    });
+</script>
+
+<script type="text/javascript">
+
+    $("#UploadImg").change(function () {
+        $('#load').show();
+        var data = new FormData();
+        var files = $("#UploadImg").get(0).files;
+        if (files.length > 0) {
+            for (i = 0; i < files.length; i++) {
+                data.append("MyImages"+i,files[i]);
+            }
+        }
+        $.ajax({
+            url: "/CMCMember/UploadMissingDetails",
+            type: "POST",
+            processData: false,
+            contentType: false,
+            data: data,
+            success: function (response) {
+                //code after success
+                $('#table').jtable('load');
+                $('#load').hide();
+                $('#save').show();
+                alert(response);
+            },
+            error: function (er) {
+                alert(er);
+            }
+
+        });
+    });
+</script>
+
+
+

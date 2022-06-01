@@ -1,0 +1,129 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{EBEAD02C-B979-4A55-9BFA-A96139DCDD79}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Domain</RootNamespace>
+    <AssemblyName>Domain</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="FluentNHibernate">
+      <HintPath>..\..\nHybernate\FluentNHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="Iesi.Collections">
+      <HintPath>..\..\nHybernate\Iesi.Collections.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate">
+      <HintPath>..\..\nHybernate\NHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Implementation\Master\BillingCompany.cs" />
+    <Compile Include="Implementation\Master\CMCMember.cs" />
+    <Compile Include="Implementation\Master\Company.cs" />
+    <Compile Include="Implementation\Master\AppsUser.cs" />
+    <Compile Include="Implementation\Master\Country.cs" />
+    <Compile Include="Implementation\Master\DigitalSignature.cs" />
+    <Compile Include="Implementation\Master\Employee.cs" />
+    <Compile Include="Implementation\Master\EmployeeKYC.cs" />
+    <Compile Include="Implementation\Master\ESIEmp.cs" />
+    <Compile Include="Implementation\Master\ServiceName.cs" />
+    <Compile Include="Implementation\Master\UserRights.cs" />
+    <Compile Include="Implementation\Master\LoginInfo.cs" />
+    <Compile Include="Implementation\Master\StatutoryCode.cs" />
+    <Compile Include="Implementation\Transaction\BillMaster.cs" />
+    <Compile Include="Implementation\Transaction\BillTransaction.cs" />
+    <Compile Include="Implementation\Transaction\PayslipData.cs" />
+    <Compile Include="Implementation\Transaction\CMCTransaction.cs" />
+    <Compile Include="Implementation\Transaction\CMCTrnMaster.cs" />
+    <Compile Include="Implementation\Transaction\ESIMonthlyCont.cs" />
+    <Compile Include="Implementation\Transaction\ESIMonthlyContMaster.cs" />
+    <Compile Include="Implementation\Transaction\MonthlyReturnMaster.cs" />
+    <Compile Include="Interface\Master\IBillingCompany.cs" />
+    <Compile Include="Interface\Master\ICMCMember.cs" />
+    <Compile Include="Interface\Master\ICompany.cs" />
+    <Compile Include="Interface\Master\IAppsUser.cs" />
+    <Compile Include="Interface\Master\IDigitalSignature.cs" />
+    <Compile Include="Interface\Master\IEmployee.cs" />
+    <Compile Include="Interface\Master\IEmployeeKYC.cs" />
+    <Compile Include="Interface\Master\ICountry.cs" />
+    <Compile Include="Interface\Master\IESIEmp.cs" />
+    <Compile Include="Interface\Master\IServiceName.cs" />
+    <Compile Include="Interface\Master\IUserRights.cs" />
+    <Compile Include="Interface\Master\ILoginInfo.cs" />
+    <Compile Include="Interface\Master\IStatutoryCode.cs" />
+    <Compile Include="Implementation\Transaction\MonthlyReturn.cs" />
+    <Compile Include="Interface\Transaction\IBillMaster.cs" />
+    <Compile Include="Interface\Transaction\IBillTransaction.cs" />
+    <Compile Include="Interface\Transaction\ICMCTransaction.cs" />
+    <Compile Include="Interface\Transaction\ICMCTrnMaster.cs" />
+    <Compile Include="Interface\Transaction\IESIMonthlyCont.cs" />
+    <Compile Include="Interface\Transaction\IESIMonthlyContMaster.cs" />
+    <Compile Include="Interface\Transaction\IMonthlyReturnMaster.cs" />
+    <Compile Include="Interface\Transaction\IPayslipData.cs" />
+    <Compile Include="Mapping\Master\BillingCompanyMap.cs" />
+    <Compile Include="Mapping\Master\CMCMemberMap.cs" />
+    <Compile Include="Mapping\Master\CompanyMap.cs" />
+    <Compile Include="Mapping\Master\AppsUserMap.cs" />
+    <Compile Include="Mapping\Master\CountryMap.cs" />
+    <Compile Include="Mapping\Master\DigitalSignatureMap.cs" />
+    <Compile Include="Mapping\Master\EmployeeKYCMap.cs" />
+    <Compile Include="Mapping\Master\EmployeeMap.cs" />
+    <Compile Include="Mapping\Master\ESIEmpMap.cs" />
+    <Compile Include="Mapping\Master\ServiceNameMap.cs" />
+    <Compile Include="Mapping\Master\UserRightsMap.cs" />
+    <Compile Include="Mapping\Master\LoginInfoMap.cs" />
+    <Compile Include="Mapping\Master\StatutoryCodeMap.cs" />
+    <Compile Include="Interface\Transaction\IMonthlyReturn.cs" />
+    <Compile Include="Mapping\Transaction\BillMasterMap.cs" />
+    <Compile Include="Mapping\Transaction\BillTransactionMap.cs" />
+    <Compile Include="Mapping\Transaction\CMCTransactionMap.cs" />
+    <Compile Include="Mapping\Transaction\CMCTrnMasterMap.cs" />
+    <Compile Include="Mapping\Transaction\ESIMonthlyContMap.cs" />
+    <Compile Include="Mapping\Transaction\ESIMonthlyContMasterMap.cs" />
+    <Compile Include="Mapping\Transaction\MonthlyReturnMap.cs" />
+    <Compile Include="Mapping\Transaction\MonthlyReturnMasterMap.cs" />
+    <Compile Include="Mapping\Transaction\PayslipDataMap.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

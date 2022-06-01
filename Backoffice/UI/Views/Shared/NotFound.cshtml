@@ -1,0 +1,20 @@
+﻿@model System.Web.Mvc.HandleErrorInfo
+
+@{
+    ViewBag.Title = "Page Not Found";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="panel panel-info topmar-10">
+    <div class="panel-heading">
+        @Html.ActionLink("Dashboard", "Index", "Home")
+    </div>
+    <div class="panel-body">
+        <h2>The Page You Are Looking For Not Found..</h2>
+        <h3>Please report your system administrator</h3>
+
+    </div>
+</div>
+
+

@@ -1,0 +1,237 @@
+﻿@using UI.Helper
+@{
+    ViewBag.Title = "Dashboard";
+}
+
+<style type="text/css">
+    .panel-sm {
+        padding: 1px 15px;
+    }
+
+    .panel-top {
+        margin-left: 40px;
+    }
+
+    .panel-bot {
+        margin-top: 5px;
+    }
+
+    .dark-col {
+        background-color: #d9edf7;
+        border-color: #bce8f1;
+    }
+
+    .navbar {
+        margin-bottom: 5px;
+    }
+</style>
+
+<script type="text/javascript">
+    function toggler(divId) {
+        $("#" + divId).toggle();
+    }
+</script>
+
+<div class="row topmar-10">
+    <div class="panel panel-info col-sm-2 col-md-2 dark-col">
+        <div class="panel-heading"><span class="fa fa-dashboard fa-1x"> DASHBOARD</span></div>
+
+        @if (User.IsInRole("CMCUser") || User.IsInRole("Admin"))
+        {
+            <ul class="nav nav-sidebar">
+                <li class="active">
+                    <a href="#cmcuser" class="toggle mnuborder">
+                        <span class="fa fa-gear"></span><strong> CMC TRANSACTION</strong>
+                    </a>
+                </li>
+            </ul>
+            <div id="cmcuser" class="hidden">
+                <ul class="nav nav-sidebar">
+                    <li>@Html.ActionLink("Member Details", "Index", "CMCMember")</li>
+                    <li>@Html.ActionLink("Upload PAN & Aadhar Copy", "UploadKYCIndex", "CMCMember")</li>
+                    <li>@Html.ActionLink("Prepare Monthly Data", "PrepareMonthlyData", "CMCTrnMaster")</li>
+                    <li>@Html.ActionLink("View Monthly Data", "Index", "CMCTrnMaster")</li>
+                    <li>@Html.ActionLink("Fill Missing Details", "MissingDataIndex", "CMCMember")</li>
+                </ul>
+            </div>
+        }
+
+        @if (User.IsInRole("Admin") || User.IsInRole("User"))
+        {
+            
+            <ul class="nav nav-sidebar">
+                <li class="active">
+                    <a href="#master" class="toggle mnuborder">
+                        <span class="fa fa-table"></span><strong> MASTER</strong>
+                    </a>
+                </li>
+            </ul>
+            <div id="master" class="hidden">
+                <ul class="nav nav-sidebar">
+                    <li>@Html.ActionLink("Company", "Index", "Company")</li>
+                    <li>@Html.ActionLink("Employee", "Index", "Employee")</li>
+                    <li>@Html.ActionLink("Update Bulk UAN", "BulkUpdateEmp", "Employee")</li>
+                    <li>@Html.ActionLink("ESI Employee", "Index", "ESIEmployee")</li>
+                    <li>@Html.ActionLink("Statutory", "Index", "StatutoryCode")</li>
+                </ul>
+            </div>
+            <ul class="nav nav-sidebar">
+                <li class="active">
+                    <a href="#pf" class="toggle mnuborder">
+                        <span class="fa fa-gear"></span><strong> PF TRANSACTION</strong>
+                    </a>
+                </li>
+            </ul>
+            <div id="pf" class="hidden">
+                <ul class="nav nav-sidebar">
+                    <li>@Html.ActionLink("Export LastMonth Salary", "ExportLastMonth", "MonthlyReturnMaster")</li>
+                    <li>@Html.ActionLink("Prepare Monthly Return", "Index", "MonthlyReturnDraft")</li>
+                    <li>@Html.ActionLink("Process Monthly Return", "Index", "ProcessMonthlyReturn")</li>
+                    <li>@Html.ActionLink("Monthly PF Return", "Index", "MonthlyReturnMaster")</li>
+                    <li>@Html.ActionLink("PMRPY", "PMRPY", "MonthlyReturnMaster")</li>
+                </ul>
+            </div>
+            <ul class="nav nav-sidebar">
+                <li class="active">
+                    <a href="#esi" class="toggle mnuborder">
+                        <span class="fa fa-gear"></span><strong> ESI TRANSACTION</strong>
+                    </a>
+                </li>
+            </ul>
+            <div id="esi" class="hidden">
+                <ul class="nav nav-sidebar">
+                    <li>@Html.ActionLink("File Monthly Contribution", "PrepareMonthlyContribution", "ESIMonthlyContMaster")</li>
+                    <li>@Html.ActionLink("View Monthly Contribution", "Index", "ESIMonthlyContMaster")</li>
+                    <li>@Html.ActionLink("Upload e-Pehchan Card", "IPCard", "ESIMonthlyContMaster")</li>
+                </ul>
+            </div>
+            @*<ul class="nav nav-sidebar">
+                <li class="active">
+                    <a href="#billing" class="toggle mnuborder">
+                        <span class="fa fa-money"></span><strong> BILLING</strong>
+                    </a>
+                </li>
+            </ul>
+            <div id="billing" class="hidden">
+                <ul class="nav nav-sidebar">
+                    <li>@Html.ActionLink("Billing Company", "Index", "BillingCompany")</li>
+                    <li>@Html.ActionLink("Service Name", "Index", "ServiceName")</li>
+                    <li>@Html.ActionLink("Add Billing", "AddBill", "BillingMaster")</li>
+                    <li>@Html.ActionLink("View Billing", "Index", "BillingMaster")</li>
+                </ul>
+            </div>*@
+            <ul class="nav nav-sidebar">
+                <li class="active">
+                    <a href="#export" class="toggle mnuborder">
+                        <span class="fa fa-download"></span><strong> EXPORT FILES</strong>
+                    </a>
+                </li>
+            </ul>
+            <div id="export" class="hidden">
+                <ul class="nav nav-sidebar">
+                    <li>@Html.ActionLink("Export KYC", "ExportKYC", "Export")</li>
+                    <li>@Html.ActionLink("Export Employee", "ExportEmployee", "Export")</li>
+                </ul>
+            </div>
+            <ul class="nav nav-sidebar">
+                <li class="active">
+                    <a href="#report" class="toggle mnuborder">
+                        <span class="fa fa-bar-chart"></span><strong> REPORTS</strong>
+                    </a>
+                </li>
+            </ul>
+            <div id="report" class="hidden">
+                <ul class="nav nav-sidebar">
+                    <li>@Html.ActionLink("ACTIVE MEMBER", "ActiveMember", "Employee")</li>
+                    <li>@Html.ActionLink("Digital Signature Validity", "DigitalSignReport", "Company")</li>
+                    <li>@Html.ActionLink("PF Annual contribution", "Form3A", "MonthlyReturnMaster")</li>
+                    <li>@Html.ActionLink("ESI Yearly Statement ", "YearlyStatement", "ESIMonthlyContMaster")</li>
+                </ul>
+            </div>
+            <ul class="nav nav-sidebar">
+                <li class="active">
+                    <a href="#admin" class="toggle mnuborder">
+                        <span class="fa fa-user"></span><strong> ADMIN</strong>
+                    </a>
+                </li>
+            </ul>
+            <div id="admin" class="hidden">
+                <ul class="nav nav-sidebar">
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <li>@Html.ActionLink("Application User", "Index", "AppsUser")</li>
+                        <li>@Html.ActionLink("User Login Info", "Index", "LoginInfo")</li>
+                        <li>@Html.ActionLink("Bulk Delete Employee", "BulkDelete", "Employee")</li>
+                        <li>@Html.ActionLink("Delete EPF Final Contributon", "ViewMonthlyReturn", "MonthlyReturnMaster")</li>
+                        <li>@Html.ActionLink("ESI Emp", "Index", "ESIEmp")</li>
+                    }
+                </ul>
+            </div>
+        }
+
+    </div>
+
+    <div class="col-sm-10">
+        <div class="panel panel-info">
+            <div class="panel-heading"><strong><span class="fa fa-dashboard fa-2x"></span> DASHBOARD</strong></div>
+            <div class="panel-body">
+                <div class="row">
+                    @if (User.IsInRole("Admin") || User.IsInRole("User"))
+                    {
+                        <div class="col-sm-12 no-r-pad">
+                            @Html.MyActionLink("<span class='fa fa-upload fa-1x'> Bulk Employee</span>", "Upload Bulk Employee", "BulkUpload", "Employee", null, new { @class = "btn btn-link btn-sm" })
+                            @Html.MyActionLink("<span class='fa fa-database fa-1x'> Prepare PF-Return</span>", "Prepare Monthly Return", "Index", "MonthlyReturnDraft", null, new { @class = "btn btn-link btn-sm" })
+                            @Html.MyActionLink("<span class='fa fa-gear fa-1x'> Process PF-Return</span>", "Process Monthly Return", "Index", "ProcessMonthlyReturn", null, new { @class = "btn btn-link btn-sm" })<label class="numberCircle" id="c"></label>
+                            @Html.MyActionLink("<span class='fa fa-search fa-1x'> View PF-Contribution</span>", "Monthly PF Return", "Index", "MonthlyReturnMaster", null, new { @class = "btn btn-link btn-sm" })
+
+                            @Html.MyActionLink("<span class='fa fa-gear fa-1x'> Prepare ESI-Return</span>", "File Monthly Contribution", "PrepareMonthlyContribution", "ESIMonthlyContMaster", null, new { @class = "btn btn-link btn-sm" })
+                            @Html.MyActionLink("<span class='fa fa-search fa-1x'> View ESI-Contribution</span>", "View Monthly Contribution", "Index", "ESIMonthlyContMaster", null, new { @class = "btn btn-link btn-sm" })
+                            @Html.MyActionLink("<span class='fa fa-upload fa-1x'> Upload e-Pehchan Card</span>", "Upload e-Pehchan Card", "IPCard", "ESIMonthlyContMaster", null, new { @class = "btn btn-link btn-sm" })
+                            @Html.MyActionLink("<span class='fa fa-id-card-o fa-1x'> New ESI Employee Registration</span>", "New ESI Employee", "Index", "ESIEmp", null, new { @class = "btn btn-link btn-sm" })<label class="numberCircle" id="d"></label>
+                            @Html.MyActionLink("<span class='fa fa-id-card-o fa-1x text-danger'> PaySlip Data</span>", "Payslipdata", "Index", "PayslipData", null, new { @class = "btn btn-link btn-sm" })<label class="numberCircle" id="d"></label>
+                            
+                        </div>
+                        <div class="col-sm-7 no-r-pad">
+                            @{Html.RenderAction("DashboardView", "MonthlyReturnMaster");}
+                        </div>
+                        <div class="col-sm-5">
+                            @{Html.RenderAction("DashboardView", "Company");}
+                        </div>
+                    }
+                    </div>
+               
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        GetDraftPF();
+        GetESIEmp();
+
+        $(function () {
+            $('.toggle').click(function (event) {
+                event.preventDefault();
+                var target = $(this).attr('href');
+                $(target).toggleClass('hidden show');
+            });
+        });
+    });
+</script>
+
+<script type="text/javascript">
+
+    function GetDraftPF() {
+        $.get("/ProcessMonthlyReturn/GetDraftPF", {} , function (data) {              //fetching data of the selected user from controller
+            document.getElementById("c").innerText = data;
+        });
+    }
+    function GetESIEmp() {
+        $.get("/ESIEmp/GetESIEmp", {}, function (data) {              //fetching data of the selected user from controller
+            document.getElementById("d").innerText = data;
+        });
+    }
+
+</script>

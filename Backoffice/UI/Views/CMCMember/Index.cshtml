@@ -1,0 +1,225 @@
+﻿@using UI.Helper
+@{
+    ViewBag.Title = "CMC Member Details";
+}
+
+
+<div class="panel panel-info topmar-10">
+    <div class="panel-heading">
+        @Html.MyActionLink("<span class='fa fa-dashboard fa-1x'></span> Dashboard", "Dashboard", "Index", "Dashboard", null, new { @class = "btn btn-info btn-sm" })
+        @Html.MyActionLink("<span class='fa fa-upload fa-1x'></span> Bulk Upload", "Upload Bulk", "BulkUpload", "CMCMember", null, new { @class = "btn btn-info btn-sm" })
+        @Html.Partial("_CMCMenu")
+        <input type="text" class="search-box font" id="search" placeholder="Search by" />
+        @Html.DropDownList("SearchFields", new SelectList((ViewBag.SearchFields) as SelectList, "Value", "Text"), new { @class = "search-box" })
+        <i title="search" id="searchbtn" class="fa fa-search btn btn-info"></i>
+        <i title="refresh" id="refreshbtn" class="fa fa-refresh btn btn-success"></i>
+        <i title="Export To Excel" id="export" style="display:none" class="fa fa-file-excel-o fa-1x btn btn-link pull-right"></i>
+    </div>
+    <div class="panel-body">
+        <div id="table"></div>
+    </div>
+</div>
+
+@*Filtering*@
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#export').click(function (e) {
+            var url = "/Employee/ExportMember";
+            window.open(url);
+            e.preventDefault();
+        });
+
+        $("#comp").change(function (e) {
+            e.preventDefault();
+            $('#table').jtable('load', {
+                compid: $('#comp').val()
+            });
+            $('#export').show();
+        });
+
+        $('#searchbtn').click(function (e) {
+            var id = $('#comp').val();
+            if (id == 0) {
+                alert("Select Company first!");
+                return;
+            }
+            $('#table').jtable('load', {
+                status:$('#Status').val(),compid: $('#comp').val(), field: $('#SearchFields').val(), search: $('#search').val()
+            });
+        });
+
+        $('#search').bind('keyup', function (e) {
+            if (e.which == 13) {
+                var id = $('#comp').val();
+                if (id == 0) {
+                    alert("Select Company first!");
+                    return;
+                }
+                $('#table').jtable('load', {
+                    status: $('#Status').val(), compid: $('#comp').val(), field: $('#SearchFields').val(), search: $('#search').val()
+                });
+            }
+        });
+
+
+        $('#refreshbtn').click(function (e) {
+            $('#search').val('');
+            $('#Status').val('');
+            $('#table').jtable('load', {
+                compid: $('#comp').val()
+            });
+        });
+
+    });
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#table').jtable({
+            title: 'CMC Member Details',
+            paging: true,
+            pagesize: 3,
+            sorting: true,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '@Url.Action("List")',
+                createAction: '@Url.Action("Create")',
+                updateAction: '@Url.Action("Update")',
+            },
+            fields: {
+                Id: {
+                    title: 'Id',
+                    width:'1%',
+                    key: true,
+                    create: false,
+                    edit: false,
+                    list: false
+                },
+                Code: {
+                    title: 'CMCCode',
+                    width: '1%',
+                },
+                Name: {
+                    title: 'Name',
+                    width: '2%'
+                },
+                Gender: {
+                    title: 'Gender',
+                    width: '1%',
+                    options: { "M": "Male", "F": "Female", "T": "Transgender" }
+                },
+                FatherName: {
+                    title: 'FatherName',
+                    width: '2%',
+                },
+                DutyStation: {
+                    title: 'DutyStation',
+                    width: '2%'
+                },
+                District: {
+                    title: 'District',
+                    width: '2%',
+                },
+                SubRegion: {
+                    title: 'SubRegion',
+                    width: '2%',
+                },
+                DOB: {
+                    title: 'DOB',
+                    width: '2%',
+                    type: 'date',
+                    display: function (data) {
+                        if (data.record.DOB != null)
+                            return moment(data.record.DOB).format('DD/MM/YYYY')
+                    },
+                },
+                DOC: {
+                    title: 'DOC',
+                    width: '2%',
+                    type: 'date',
+                    display: function (data) {
+                        if (data.record.DOC != null)
+                            return moment(data.record.DOC).format('DD/MM/YYYY')
+                    },
+                },
+                
+                BankAc: {
+                    title: 'BankAc',
+                    width: '2%',
+                },
+                IFSC: {
+                    title: 'IFSC',
+                    width: '2%',
+                },
+                BankName: {
+                    title: 'BankName',
+                    width: '2%',
+                },
+                PAN: {
+                    title: 'PAN',
+                    width: '2%',
+                    display: function (data) {
+                        if (data.record.PAN != null) {
+                            var $img = $('<a title="Pan Card" class="child-opener-image pointer " src="">' + data.record.PAN + '</a>');
+                            $img.click(function () {
+                                var file = data.record.PAN;
+                                var url = "Upload/CMCKYC/" + file + ".pdf";
+                                window.open(url);
+                            });
+                            return $img
+                        }
+                    }
+                },
+                Aadhaar: {
+                    title: 'Aadhaar',
+                    width: '2%',
+                    display: function (data) {
+                        if (data.record.Aadhaar != null) {
+                            var $img = $('<a title="Aadhar Card" class="child-opener-image pointer " src="">' + data.record.Aadhaar + '</a>');
+                            $img.click(function () {
+                                var file = data.record.Aadhaar;
+                                var url = "Upload/CMCKYC/" + file + ".pdf";
+                                window.open(url);
+                            });
+                            return $img
+                        }
+                    }
+                },
+                Mobile: {
+                    title: 'Mobile',
+                    width: '2%',
+                },
+                DOE: {
+                    title: 'DOE',
+                    width: '2%',
+                    type: 'date',
+                    display: function (data) {
+                        if (data.record.RegDate != null)
+                            return moment(data.record.DOE).format('DD/MM/YYYY')
+                    },
+                },
+            },
+            formCreated: function (event, data) {
+                $("#Edit-DOB").removeClass('hasDatepicker');
+                $("#Edit-DOB").datepicker({ yearRange: "-58:-12", changeMonth: true, changeYear: true, dateFormat: 'yy-mm-dd' });
+
+                $("#Edit-DOC").removeClass('hasDatepicker');
+                $("#Edit-DOC").datepicker({ yearRange: "-58:+0", changeMonth: true, changeYear: true, dateFormat: 'yy-mm-dd' });
+
+                var compid = $("#comp").val();
+                if (compid != '') { $('#Edit-CompId').val(compid); }
+                data.form.validationEngine();
+            },
+            formSubmitting: function (event, data) {
+                return data.form.validationEngine('validate');
+            },
+            formClosed: function (event, data) {
+                data.form.validationEngine('hide');
+                data.form.validationEngine('detach');
+            }
+        });
+        $('#table').jtable('load');
+    });
+</script>

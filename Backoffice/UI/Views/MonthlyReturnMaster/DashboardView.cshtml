@@ -1,0 +1,136 @@
+﻿
+<div class="panel panel-info topmar-10">
+    <div class="panel-heading">
+        <i title="Download Payment Receipt" id="pmtrcpt" class="fa fa-download btn btn-link"> Payment Receipt</i>
+        <i title="Upload PF Challan" id="pfChallan" class="fa fa-upload btn btn-link"> Upload PF Challan</i>
+        <i title="Upload PF Payment Receipt" id="pfPmtRecpt" class="fa fa-upload btn btn-link"> Upload Payment Receipt</i>
+        <i title="refresh" id="refreshbtn" class="fa fa-refresh btn btn-link pull-right"></i>
+    </div>
+    <div class="panel-body">
+        <div id="table1" class="table-responsive"></div>
+        <div id="dialog-file" style="display: none"> </div>
+    </div>
+</div>
+
+@*Filtering*@
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#pfChallan').click(function (e) {
+            var url = '@Url.Action("PFChallan","MonthlyReturnMaster")'
+            window.open(url);
+            e.preventDefault();
+        });
+        $('#pfPmtRecpt').click(function (e) {
+            var url = '@Url.Action("PaymentReceipt","MonthlyReturnMaster")'
+            window.open(url);
+            e.preventDefault();
+        });
+
+        $('#pmtrcpt').click(function (e) {
+            var url = "https://unifiedportal-epfo.epfindia.gov.in/publicPortal/no-auth/misReport/home/loadSearchTrrnHome"
+            window.open(url);
+            e.preventDefault();
+        });
+
+        $('#refreshbtn').click(function (e) {
+            $('#table1').jtable('load');
+        });
+
+    });
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#table1').jtable({
+            title: 'PF Return Pending For Payment ',
+            paging: false,
+            pagesize: 3,
+            sorting: false,
+            actions: {
+                listAction: '@Url.Action("DashboardList")',
+                updateAction: '@Url.Action("Update")',
+            },
+            fields: {
+                Id: {
+                    title: 'Id',
+                    width: '1%',
+                    key: true,
+                    create: false,
+                    edit: false,
+                    list: false
+                },
+                CompId: {
+                    title: 'Company',
+                    width: '2%',
+                    options: '@Url.Action("GetCompanyOptions", "Company")',
+                    edit: false,
+                },
+                ContType: {
+                    title: 'ECRType',
+                    width: '1%',
+                    options: { "E": "ECR", "A": "Arrear","S":"Suppliment" },
+                    edit: false,
+                },
+                MonthYear: {
+                    title: 'MonthYear',
+                    width: '2%',
+                    edit: false,
+                },
+                TRRN: {
+                    title: 'TRRN',
+                    width: '2%',
+                    display: function (data) {
+                        if (data.record.TRRN != null) {
+                            var $img = $('<a title="TRRN" class="child-opener-image pointer " src="">' + data.record.TRRN + '</a>');
+                            $img.click(function () {
+                                var file = data.record.TRRN;
+                                var url = "Upload/PFChallan/" + file + ".pdf";
+                                window.open(url);
+                            });
+                            return $img
+                        }
+                    }
+                },
+                CRN: {
+                    title: 'CRN',
+                    width: '2%',
+                    display: function (data) {
+                        if (data.record.CRN != null) {
+                            var $img = $('<a title="Payment Receipt" class="child-opener-image pointer " src="">' + data.record.CRN + '</a>');
+                            $img.click(function () {
+                                var file = data.record.CRN;
+                                var url = "Upload/PFPaymentReceipt/" + file + ".pdf";
+                                window.open(url);
+                            });
+                            return $img
+                        }
+                    }
+                },
+                PaymentDate: {
+                    title: 'PaymentDate',
+                    width: '2%',
+                    type: 'date',
+                    display: function (data) {
+                        if (data.record.PaymentDate != null)
+                            return moment(data.record.PaymentDate).format('DD/MMM/YYYY')
+                    },
+                },
+            },
+            formCreated: function (event, data) {
+                data.form.validationEngine();
+            },
+            formSubmitting: function (event, data) {
+                return data.form.validationEngine('validate');
+            },
+            formClosed: function (event, data) {
+                data.form.validationEngine('hide');
+                data.form.validationEngine('detach');
+            }
+        });
+
+        $('#table1').jtable('load');
+    });
+</script>
+

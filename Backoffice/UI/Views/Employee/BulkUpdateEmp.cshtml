@@ -1,0 +1,180 @@
+﻿@using UI.Helper
+@{
+    ViewBag.Title = "Bulk Update Emp";
+}
+
+
+
+<div class="panel panel-info topmar-10">
+    <div class="panel-heading">
+        @Html.MyActionLink("<span class='fa fa-dashboard fa-1x'></span> Dashboard", "Dashboard", "Index", "Dashboard", null, new { @class = "btn btn-info btn-sm" })
+        @Html.MyActionLink("<span class='fa fa-users fa-1x'></span> Employee", "Employee", "Index", "Employee", null, new { @class = "btn btn-info btn-sm" })
+        @Html.DropDownList("comp", new SelectList((ViewBag.comp) as SelectList, "Value", "Text"), "Select Company", new { @class = "search-box" })
+        <button id="upload" type="button" class="btn btn-info btn-sm">
+            <span class="fa fa-upload"></span> Select CSV File
+            <span id="load" class="fa fa-spin fa-spinner"></span>
+        </button>
+
+        <button id="save" type="button" style="display:none" class="btn btn-success pull-right btn-sm">
+            <span class="fa fa-floppy-o"></span> Save
+            <span id="load1" class="fa fa-spin fa-spinner"></span>
+        </button>
+        <i title="refresh" id="help" class="fa fa-question btn btn-success"> Help File</i>
+        @if (TempData["Message"] != null)
+        {
+            <div id="message" class="success"> @TempData["Message"] </div>
+        }
+    </div>
+    <div class="panel-body">
+        <input type="file" id="UploadImg" multiple style="display:none" />
+        <div id="dialog-file" style="display: none"> </div>
+        <div id="table" class="table-responsive"></div>
+    </div>
+</div>
+
+@*Filtering*@
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#help').click(function (e) {
+            var url = "/Upload/HelpFile/BulkEmployee.xls"
+            window.open(url);
+            e.preventDefault();
+        });
+
+    });
+</script>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#load').hide();
+        $('#load1').hide();
+        $("#message").fadeIn("Slow").delay(2000).fadeOut("Slow");
+
+        $('#table').jtable({
+            title: 'Draft Employee',
+            paging: false,
+            pagesize: 3,
+            sorting: false,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '@Url.Action("BulkUpdateList")',
+            },
+            fields: {
+                Id: {
+                    title: 'Id',
+                    width: '1%',
+                    key: true,
+                    create: false,
+                    edit: false,
+                    list: false
+                },
+                CompId: {
+                    title: 'Company',
+                    width: '2%',
+                    options: '@Url.Action("GetCompanyOptions", "Company")',
+                },
+                Branch: {
+                    title: 'Branch',
+                    width: '2%'
+                },
+                EmpCode: {
+                    title: 'EmpCode',
+                    width: '2%'
+                },
+                Name: {
+                    title: 'Name',
+                    width: '2%'
+                },
+                UAN: {
+                    title: 'UAN',
+                    width: '2%'
+                },
+                ESIIP: {
+                    title: 'ESIIP',
+                    width: '2%',
+                },
+            },
+            formCreated: function (event, data) {
+                data.form.validationEngine();
+            },
+            formSubmitting: function (event, data) {
+                return data.form.validationEngine('validate');
+            },
+            formClosed: function (event, data) {
+                data.form.validationEngine('hide');
+                data.form.validationEngine('detach');
+            }
+        });
+
+        $("#upload").click(function (e) {
+            e.preventDefault();
+            var id = $("#comp").val();
+            if (id == "") {
+                alert("Please select Company First!");
+                return;
+            }
+            $("#UploadImg").trigger('click');
+        });
+
+
+        $("#save").click(function (e) {
+            e.preventDefault();
+            $('#load1').show();
+            $.ajax({
+                url: "/Employee/UpdateBulk",
+                type: "POST",
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    //code after success
+                    $('#save').hide();
+                    $('#table').jtable('load');
+                    alert(response);
+                    $('#load1').hide();
+                },
+                error: function (er) {
+                    alert(er);
+                }
+
+            });
+        });
+    });
+</script>
+
+<script type="text/javascript">
+
+    $("#UploadImg").change(function () {
+        $('#load').show();
+        var data = new FormData();
+        var files = $("#UploadImg").get(0).files;
+        if (files.length > 0) {
+            for (i = 0; i < files.length; i++) {
+                data.append("MyImages"+i,files[i]);
+            }
+        }
+        data.append("compid", $("#comp").val());
+        $.ajax({
+            url: "/Employee/UploadFileForUpdate",
+            type: "POST",
+            processData: false,
+            contentType: false,
+            data: data,
+            success: function (response) {
+                //code after success
+                $('#table').jtable('load');
+                $('#load').hide();
+                $('#save').show();
+                alert(response);
+            },
+            error: function (er) {
+                alert(er);
+            }
+
+        });
+    });
+</script>
+
+
+

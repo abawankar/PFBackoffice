@@ -1,0 +1,73 @@
+﻿@using UI.Helper
+@{
+    ViewBag.Title = "DigitalSignReport";
+}
+
+
+<div class="panel panel-info topmar-10">
+    <div class="panel-heading">
+        @Html.MyActionLink("<span class='fa fa-dashboard fa-1x'></span> Dashboard", "Dashboard", "Index", "Dashboard", null, new { @class = "btn btn-info btn-sm" })
+        @Html.MyActionLink("<span class='fa fa-building fa-1x'></span> Company", "Company", "Index", "Company", null, new { @class = "btn btn-info btn-sm" })
+    </div>
+    <div class="panel-body">
+        <div id="table"></div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#table').jtable({
+            title: 'Digital Signatory Validity Report',
+            paging: true,
+            pagesize: 3,
+            sorting: true,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '@Url.Action("SignReportList")',
+            },
+            fields: {
+                Id: {
+                    title: 'Id',
+                    width:'1%',
+                    key: true,
+                    create: false,
+                    edit: false,
+                    list: false
+                },
+                CompName: {
+                    title: 'CompName',
+                    width: '5%'
+                },
+                Name: {
+                    title: 'Authorised Name',
+                    width: '5%'
+                },
+                Validity: {
+                    title: 'Validity Till',
+                    width: '5%',
+                    type: 'date',
+                    display: function (data) {
+                        if (data.record.Validity != null)
+                            return moment(data.record.Validity).format('DD/MMM/YYYY')
+                    },
+                },
+                Days: {
+                    title: 'Days Remaining',
+                    width: '0.5%',
+                    display: function (data) {
+                        var x = data.record.Days;
+                        if (x >= 30) {
+                            return "<div class='green'>" + x + "</div>";
+                        }
+                        else {
+                            return "<div class='red'>" + x + "</div>";
+                        }
+                    },
+                },
+            },
+        });
+        $('#table').jtable('load');
+    });
+</script>
+
+

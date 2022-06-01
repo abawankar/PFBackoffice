@@ -1,0 +1,281 @@
+﻿@using UI.Helper
+@{
+    ViewBag.Title = "Application Users";
+}
+<style>
+    input, select, textarea {
+        max-width: 180px;
+    }
+</style>
+<div class="panel panel-info topmar-10">
+    <div class="panel-heading">
+        @Html.MyActionLink("<span class='fa fa-dashboard fa-1x'></span> Dashboard", "Dashboard", "Index", "Dashboard", null, new { @class = "btn btn-info btn-sm" })
+        @Html.MyActionLink("<span class='fa fa-building fa-1x'></span> Company", "Company", "Index", "Company", null, new { @class = "btn btn-info btn-sm" })
+        @Html.DropDownList("status", new SelectList((ViewBag.status) as SelectList, "Value", "Text"), new { @class = "search-box" })
+        <input type="text" class="search-box" id="name" placeholder="Search.." />
+        <button id="search" type="button" class="btn btn-info btn-sm">
+            <span class="glyphicon glyphicon-search"></span> Search
+        </button>
+    </div>
+    <div class="panel-body">
+        <div id="table"></div>
+        <div id="dialog-edit" style="display: none"></div>
+        <div id="dialog-client" style="display: none"></div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        //Dialog form
+        $("#dialog-edit").dialog({
+            title: 'Add',
+            autoOpen: false,
+            resizable: false,
+            width: 600,
+            show: { effect: 'drop', direction: "up" },
+            modal: true,
+            draggable: true,
+            open: function (event, ui) {
+                $(".ui-dialog-titlebar-close").show();
+                $(this).load(url);
+            },
+        });
+
+        $('#table').jtable({
+            title: 'Application Users',
+            paging: true,
+            pagesize: 3,
+            sorting: true,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '@Url.Action("List")',
+                updateAction: '@Url.Action("Update")',
+                createAction: '@Url.Action("Create")'
+            },
+            fields: {
+                Id: {
+                    title: 'Id',
+                    width: '1%',
+                    key: true,
+                    create: false,
+                    edit: false,
+                    list: false
+                },
+                Code: {
+                    title: 'Code',
+                    width: '2%'
+                },
+                Name: {
+                    title: 'Name',
+                    width: '2%'
+                },
+                DOB: {
+                    title: 'DOB',
+                    width: '2%',
+                    type: 'date',
+                    display: function (data) {
+                        if (data.record.DOB != null)
+                            return moment(data.record.DOB).format('DD/MMM/YYYY')
+                    },
+                },
+                AppLogin: {
+                    title: 'CreateLogin',
+                    width: '0.5%',
+                    create: false,
+                    edit: false,
+                    display: function (d) {
+                        var $img = $('<div class="text-center pointer"><i title="Create Login" class="fa fa-lock text-info fa-2x"></div>');
+                        $img.click(function () {
+                            var file = d.record.Emailid;
+                            var url = "Account/Register?applogin=" + file;
+                            window.open(url);
+                        });
+                        return $img
+                    }
+                },
+                Emailid: {
+                    title: 'Emailid',
+                    width: '2%'
+                },
+                MobileNo: {
+                    title: 'MobileNo',
+                    width: '2%'
+                },
+                Role: {
+                    title: 'Role',
+                    width: '2%',
+                    edit: false,
+                    create: false,
+                },
+                Status: {
+                    title: 'Status',
+                    width: '0.1%',
+                    create: false,
+                    options: { '1': 'Active', '2': 'InActive' },
+                    defaultValue: '1',
+                    display: function (data) {
+                        if (data.record.Status == 1)
+                            return "<div class='green'>" + 'Active' + "</div>";
+                        if (data.record.Status == 2)
+                            return "<div class='red'>" + 'InActive' + "</div>";
+                    },
+                },
+                AssignCompany: {
+                    title: 'AssignedCompany',
+                    width: '0.1%',
+                    sorting: false,
+                    create: false,
+                    edit: false,
+                    listClass: 'child-opener-image-column',
+                    listClass: 'text-center',
+                    display: function (rights) {
+                        var $img = $('<i title="Assigned Company" class="fa fa-building-o fa-1x text-primary pointer"/>');
+                        $img.click(function () {
+                            $('#table').jtable('openChildTable', $img.closest('tr'),
+                            {
+                                title: rights.record.Name + " - Company",
+                                actions: {
+                                    listAction: '@Url.Action("GetCompany")?id=' + rights.record.Id,
+                                    deleteAction: '@Url.Action("DeleteComp")?empId=' + rights.record.Id,
+                                },
+                                fields: {
+                                    Id: {
+                                        title: 'Id',
+                                        width: '1%',
+                                        key: true,
+                                        create: false,
+                                        edit: false,
+                                        list: false
+                                    },
+                                    Code: {
+                                        title: 'Code',
+                                        width: '2%'
+                                    },
+                                    Name: {
+                                        title: 'Name',
+                                        width: '12%'
+                                    },
+                                },
+                                toolbar: {
+                                    items: [{
+                                        icon: '/Content/themes/base/images/Add.png',
+                                        text: 'Assign Company To Users',
+                                        click: function () {
+                                            url = $('@Html.ActionLink("Assigned Company", "UserCompanyList")').attr('href');
+                                            url = url + "?id=" + rights.record.Id,
+                                            $("#dialog-edit").dialog("option", "title", "Assign Company");
+                                            $("#dialog-edit").dialog('open');
+                                            return false;
+                                        }
+                                    }]
+                                }
+                            }, function (data) {
+                                data.childTable.jtable('load');
+                            });
+                        });
+                        return $img;
+                    }
+                },
+                Rights: {
+                    title: 'AssignedRights',
+                    width: '0.1%',
+                    sorting: false,
+                    create: false,
+                    edit: false,
+                    listClass: 'child-opener-image-column',
+                    listClass:'text-center',
+                    display: function (rights) {
+                        var $img = $('<i title="Assigned Rights" class="fa fa-key fa-1x text-primary pointer"/>');
+                        $img.click(function () {
+                            $('#table').jtable('openChildTable', $img.closest('tr'),
+                            {
+                                title: rights.record.Name + " - Rights",
+                                actions: {
+                                    listAction: '@Url.Action("GetEmpRights")?id=' + rights.record.Id,
+                                    deleteAction: '@Url.Action("DeleteRights")?empId=' + rights.record.Id,
+                                },
+                                fields: {
+                                    Id: {
+                                        title: 'Id',
+                                        width: '1%',
+                                        key: true,
+                                        create: false,
+                                        edit: false,
+                                        list: false
+                                    },
+                                    MnuName: {
+                                        title: 'MnuName',
+                                        width: '12%'
+                                    },
+                                    TableName: {
+                                        title: 'TableName',
+                                        width: '12%'
+                                    },
+                                    Description: {
+                                        title: 'Description',
+                                        width: '12%'
+                                    },
+                                },
+                                toolbar: {
+                                    items: [{
+                                        icon: '/Content/themes/base/images/Add.png',
+                                        text: 'Assign User Rights',
+                                        click: function () {
+                                            url = $('@Html.ActionLink("Assigned EmpRights", "UserRightsList")').attr('href');
+                                            url = url + "?id=" + rights.record.Id,
+                                            $("#dialog-edit").dialog("option", "title", "Assign Rights");
+                                            $("#dialog-edit").dialog('open');
+                                            return false;
+                                        }
+                                    }]
+                                }
+                            }, function (data) {
+                                data.childTable.jtable('load');
+                            });
+                        });
+                        return $img;
+                    }
+                },
+            },
+            formCreated: function (event, data) {
+                data.form.find('input[name="Name"]').addClass('validate[required]');
+                data.form.find('input[name="Emailid"]').addClass('validate[required],custom[email]');
+
+                $("#Edit-DOB").removeClass('hasDatepicker');
+                $("#Edit-DOB").datepicker({ changeMonth: true, changeYear: true, dateFormat: 'yy-mm-dd' });
+
+                data.form.validationEngine();
+            },
+            formSubmitting: function (event, data) {
+                return data.form.validationEngine('validate');
+            },
+            formClosed: function (event, data) {
+                data.form.validationEngine('hide');
+                data.form.validationEngine('detach');
+            }
+        });
+        $('#table').jtable('load');
+
+        $("#refresh").click(function (e) {
+            $('#name').val('');
+            $("#spin").addClass("spin");
+            e.preventDefault();
+            $('#table').jtable('load');
+            $("#spin").removeClass("spin");
+        });
+        $("#search").click(function (e) {
+            e.preventDefault();
+            $('#table').jtable('load', {
+                name: $('#name').val(), status: $('#status').val()
+            });
+        });
+
+        $('#name').bind('keyup', function (e) {
+            if (e.which == 13) {
+                $('#table').jtable('load', {
+                    name: $('#name').val(), status: $('#status').val()
+                });
+            }
+        });
+    });
+</script>

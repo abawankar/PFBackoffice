@@ -1,0 +1,369 @@
+﻿@using UI.Helper
+@{
+    ViewBag.Title = "UploadPayData";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="panel panel-info topmar-10">
+    <div class="panel-heading">
+        @Html.MyActionLink("<span class='fa fa-dashboard fa-1x'></span> Dashboard", "Dashboard", "Index", "Dashboard", null, new { @class = "btn btn-info btn-sm" })
+        @Html.MyActionLink("<span class='fa fa-list fa-1x'></span> PayslipData", " Payslip Data", "Index", "PayslipData", null, new { @class = "btn btn-info btn-sm" })
+        <i title="Column Should be as per help file" id="help" class="fa fa-question btn btn-success"> Help File</i>
+        <button id="upload" type="button" class="btn btn-info btn-sm">
+            <span class="fa fa-upload"></span> Select CSV File
+            <span id="load" class="fa fa-spin fa-spinner"></span>
+        </button>
+
+        <button id="save" type="button" style="display:none" class="btn btn-success pull-right btn-sm">
+            <span class="fa fa-floppy-o"></span> Save
+            <span id="load1" class="fa fa-spin fa-spinner"></span>
+        </button>
+        @if (TempData["Message"] != null)
+        {
+            <div id="message" class="success"> @TempData["Message"] </div>
+        }
+    </div>
+    <div class="panel-body">
+        <input type="file" id="UploadImg" multiple style="display:none" />
+        <div id="dialog-file" style="display: none"> </div>
+        <div id="footer" class="table-responsive"></div>
+        <div id="table" class="table-responsive"></div>
+    </div>
+</div>
+
+@*Filtering*@
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#load').hide();
+        $('#load1').hide();
+        $("#message").fadeIn("Slow").delay(2000).fadeOut("Slow");
+
+        $('#table').jtable({
+            title: '',
+            paging: false,
+            pagesize: 3,
+            sorting: false,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '@Url.Action("BulkList")',
+            },
+            fields: {
+                Id: {
+                    title: 'Id',
+                    width: '1%',
+                    key: true,
+                    create: false,
+                    edit: false,
+                    list: false
+                },
+                EmpCode: {
+                    title: 'EmpCode',
+                    width: '2%'
+                },
+                Name: {
+                    title: 'Name',
+                    width: '2%'
+                },
+                WorkDay: {
+                    title: 'WorkDay',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                Holiday: {
+                    title: 'Holiday',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                WeekOff: {
+                    title: 'WeekOff',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                Basic: {
+                    title: 'Basic',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                Hra: {
+                    title: 'Hra',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                Conv: {
+                    title: 'Conv',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                Other: {
+                    title: 'Other',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                Extra9: {
+                    title: 'Extra9',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                Extra12: {
+                    title: 'Extra12',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                Other6: {
+                    title: 'Other6',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                GrossPay: {
+                    title: 'GrossPay',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                PfWorker: {
+                    title: 'PF',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                EsiWorker: {
+                    title: 'ESI',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                TDS: {
+                    title: 'TDS',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                Advance: {
+                    title: 'Advance',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                TotalDedn: {
+                    title: 'TotalDedn',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                NetPay: {
+                    title: 'NetPay',
+                    width: '2%',
+                    listClass: 'text-right'
+
+                },
+            }
+        });
+
+        $("#upload").click(function (e) {
+            e.preventDefault();
+            var id = $("#comp").val();
+            if (id == "") {
+                alert("Please select Company First!");
+                return;
+            }
+            $("#UploadImg").trigger('click');
+        });
+
+
+        $("#save").click(function (e) {
+            e.preventDefault();
+            $('#load1').show();
+            $.ajax({
+                url: "/Employee/SaveBulk",
+                type: "POST",
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    //code after success
+                    $('#save').hide();
+                    $('#table').jtable('load');
+                    alert(response);
+                    $('#load1').hide();
+                },
+                error: function (er) {
+                    alert(er);
+                }
+
+            });
+        });
+    });
+</script>
+
+<script type="text/javascript">
+
+    $('#help').click(function (e) {
+        var url = "/Upload/HelpFile/PayslipUploadFormat.xlsx"
+        window.open(url);
+        e.preventDefault();
+    });
+
+    $("#save").click(function (e) {
+        e.preventDefault();
+        $('#load1').show();
+        $.ajax({
+            url: "/PayslipData/SaveDraft",
+            type: "POST",
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                //code after success
+                $('#save').hide();
+                $('#table').jtable('load');
+                $('#footer').jtable('load');
+                alert(response);
+                $('#load1').hide();
+            },
+            error: function (er) {
+                alert(er);
+            }
+
+        });
+    });
+
+    $("#UploadImg").change(function () {
+        $('#load').show();
+        var data = new FormData();
+        var files = $("#UploadImg").get(0).files;
+        if (files.length > 0) {
+            for (i = 0; i < files.length; i++) {
+                data.append("MyImages"+i,files[i]);
+            }
+        }
+        $.ajax({
+            url: "/PayslipData/UploadFile",
+            type: "POST",
+            processData: false,
+            contentType: false,
+            data: data,
+            success: function (response) {
+                //code after success
+                $('#table').jtable('load');
+                $('#footer').jtable('load');
+                $('#load').hide();
+                $('#save').show();
+                alert(response);
+            },
+            error: function (er) {
+                alert(er);
+            }
+
+        });
+    });
+</script>
+
+@*Footer*@
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#footer').jtable({
+            title: 'Draft PaySlipData',
+            paging: false,
+            pagesize: 3,
+            sorting: false,
+            actions: {
+                listAction: '@Url.Action("FooterData")',
+            },
+            fields: {
+                Id: {
+                    title: '',
+                    width: '1%',
+                    key: true,
+                    create: false,
+                    edit: false,
+                    list: false
+                },
+                SalMonth: {
+                    title: 'SalMonth',
+                    width: '2%',
+                    type: 'date',
+                    display: function (data) {
+                        if (data.record.SalMonth != null)
+                            return moment(data.record.SalMonth).format('MMM-YYYY')
+                    },
+                },
+                NoofEmp: {
+                    title: 'TotalEmp',
+                    width: '2%',
+                    listClass:'text-center'
+                },
+                Basic: {
+                    title: 'Basic',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                Hra: {
+                    title: 'Hra',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                Conv: {
+                    title: 'Conv',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                Other: {
+                    title: 'Other',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                Extra9: {
+                    title: 'Extra9',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                Extra12: {
+                    title: 'Extra12',
+                    width: '2%',
+                    listClass: 'text-right'
+
+                },
+                Other6: {
+                    title: 'Other6',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                GrossPay: {
+                    title: 'GrossPay',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                PfWorker: {
+                    title: 'PF',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                EsiWorker: {
+                    title: 'ESI',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                TDS: {
+                    title: 'TDS',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                Advance: {
+                    title: 'Advance',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                TotalDedn: {
+                    title: 'TotalDedn',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                NetPay: {
+                    title: 'NetPay',
+                    width: '2%',
+                    listClass: 'text-right'
+
+                },
+            },
+        });
+    });
+</script>
+
+
+
+

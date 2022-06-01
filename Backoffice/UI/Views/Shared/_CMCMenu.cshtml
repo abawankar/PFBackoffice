@@ -1,0 +1,14 @@
+﻿<div class="btn-group dropdown">
+    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <span class="caret"></span>
+        <span class="sr-only">Toggle Dropdown</span>
+    </button>
+    <ul class="dropdown-menu">
+        <li>@Html.ActionLink("Member Details", "Index", "CMCMember")</li>
+        <li>@Html.ActionLink("Upload PAN & Aadhar Copy", "UploadKYCIndex", "CMCMember")</li>
+        <li>@Html.ActionLink("Prepare Monthly Data", "PrepareMonthlyData", "CMCTrnMaster")</li>
+        <li>@Html.ActionLink("View Monthly Data", "Index", "CMCTrnMaster")</li>
+        <li>@Html.ActionLink("Fill Missing Details", "MissingDataIndex", "CMCMember")</li>
+    </ul>
+</div>
+

@@ -1,0 +1,356 @@
+﻿@using UI.Helper
+@{
+    ViewBag.Title = "Payslip Data";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+
+<div class="panel panel-info topmar-10">
+    <div class="panel-heading">
+        @Html.MyActionLink("<span class='fa fa-dashboard fa-1x'></span> Dashboard", "Dashboard", "Index", "Dashboard", null, new { @class = "btn btn-info btn-sm" })
+        @Html.MyActionLink("<span class='fa fa-upload fa-1x'></span> Upload Data", "Upload Payslip Data", "UploadPayData", "PayslipData", null, new { @class = "btn btn-info btn-sm" })
+        <i title="refresh" id="refreshbtn" class="fa fa-refresh btn btn-success"></i>
+        
+        <label class="text-danger" id="mailstatus">
+            <span  class="fa fa-spin fa-spinner"></span> Please wait. Do not close window..
+        </label>
+
+    </div>
+    <div class="panel-body">
+        <div id="table" class="table-responsive"></div>
+    </div>
+</div>
+
+@*Filtering*@
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#refreshbtn').click(function (e) {
+            $('#table').jtable('load');
+        });
+
+    });
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#load').hide();
+        $('#load1').hide();
+        $('#mailstatus').hide();
+        $("#message").fadeIn("Slow").delay(2000).fadeOut("Slow");
+
+        $('#table').jtable({
+            title: 'Payslip Data',
+            paging: true,
+            pagesize: 3,
+            sorting: false,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '@Url.Action("List")',
+                deleteAction: '@Url.Action("Delete")',
+            },
+            fields: {
+                Id: {
+                    title: 'Id',
+                    width: '1%',
+                    key: true,
+                    create: false,
+                    edit: false,
+                    list: false
+                },
+                 SalMonth: {
+                    title: 'SalMonth',
+                    width: '2%',
+                    type: 'date',
+                    display: function (data) {
+                        if (data.record.SalMonth != null)
+                            return moment(data.record.SalMonth).format('MMM-YYYY')
+                    },
+                },
+                 NoofEmp: {
+                     title: 'NoofEmp',
+                    width: '0.1%',
+                    sorting: false,
+                    create: false,
+                    edit: false,
+                    listClass: 'child-opener-image-column text-center',
+                    display: function (comp) {
+                        var $img = $('<span title="Salary  Details" class="1x pointer text-primary">' + comp.record.NoofEmp + "</span>");
+                        $img.click(function () {
+                            $('#table').jtable('openChildTable', $img.closest('tr'),
+                            {
+                                title: "Salary Details-",
+                                paging: true,
+                                pagesize: 3,
+                                actions: {
+                                    listAction: '@Url.Action("FullDetails")?id=' + comp.record.Id
+                                },
+                                fields: {
+                                    Id: {
+                                        title: 'Id',
+                                        width: '1%',
+                                        key: true,
+                                        create: false,
+                                        edit: false,
+                                        list: false
+                                    },
+                                    EmpCode: {
+                                        title: 'EmpCode',
+                                        width: '2%',
+                                        listClass: 'text-uppercase'
+                                    },
+                                    Name: {
+                                        title: 'Name',
+                                        width: '2%'
+                                    },
+                                    WorkDay: {
+                                        title: 'WorkDay',
+                                        width: '2%',
+                                        listClass: 'text-center'
+                                    },
+                                    Holiday: {
+                                        title: 'Holiday',
+                                        width: '2%',
+                                        listClass: 'text-center'
+                                    },
+                                    WeekOff: {
+                                        title: 'WeekOff',
+                                        width: '2%',
+                                        listClass: 'text-center'
+                                    },
+                                    Basic: {
+                                        title: 'Basic',
+                                        width: '2%',
+                                        listClass: 'text-right'
+                                    },
+                                    Hra: {
+                                        title: 'Hra',
+                                        width: '2%',
+                                        listClass: 'text-right'
+                                    },
+                                    Conv: {
+                                        title: 'Conv',
+                                        width: '2%',
+                                        listClass: 'text-right'
+                                    },
+                                    Other: {
+                                        title: 'Other',
+                                        width: '2%',
+                                        listClass: 'text-right'
+                                    },
+                                    Extra9: {
+                                        title: 'Extra9',
+                                        width: '2%',
+                                        listClass: 'text-right'
+                                    },
+                                    Extra12: {
+                                        title: 'Extra12',
+                                        width: '2%',
+                                        listClass: 'text-right'
+                                    },
+                                    Other6: {
+                                        title: 'Other6',
+                                        width: '2%',
+                                        listClass: 'text-right'
+                                    },
+                                    GrossPay: {
+                                        title: 'GrossPay',
+                                        width: '2%',
+                                        listClass: 'text-right'
+                                    },
+                                    PfWorker: {
+                                        title: 'PF',
+                                        width: '2%',
+                                        listClass: 'text-right'
+                                    },
+                                    EsiWorker: {
+                                        title: 'ESI',
+                                        width: '2%',
+                                        listClass: 'text-right'
+                                    },
+                                    TDS: {
+                                        title: 'TDS',
+                                        width: '2%',
+                                        listClass: 'text-right'
+                                    },
+                                    Advance: {
+                                        title: 'Advance',
+                                        width: '2%',
+                                        listClass: 'text-right'
+                                    },
+                                    TotalDedn: {
+                                        title: 'TotalDedn',
+                                        width: '2%',
+                                        listClass: 'text-right'
+                                    },
+                                    NetPay: {
+                                        title: 'NetPay',
+                                        width: '2%',
+                                        listClass: 'text-right'
+                                    },
+                                    MailSent: {
+                                        title: 'Mail Status',
+                                        width: '2%',
+                                        listClass: 'text-center',
+                                        display: function (data) {
+                                            if (data.record.MailSent == 0)
+                                                return "<span title='PENDING' class='fa fa-times  text-danger fa-1x'></span>";
+                                            if (data.record.MailSent == 1)
+                                                return "<span title='RECEIVED' class='fa fa-check text-success fa-1x'></span>";
+                                        },
+
+                                    },
+                                    PaySlip: {
+                                        title: "PaySlip",
+                                        edit: false,
+                                        create: false,
+                                        width: '1%',
+                                        listClass:'text-center',
+                                        display: function (data) {
+                                            var $img = $('<i title="Mail Bulk PaySlip" class="fa fa-paper-plane fa-1x pointer text-primary"/>');
+                                            $img.click(function () {
+                                                $('#mailstatus').show();
+                                                var id = data.record.Id;
+                                                var strconfirm = confirm("Are you sure you want to Sent Bulk Mail?");
+                                                if (strconfirm == true) {
+                                                    $.ajax({
+                                                        type: 'POST',
+                                                        datatype: 'JSON',
+                                                        url: "@Url.Action("SendPayslip", "PayslipData")",
+                                                        data: { id: id},
+                                                    success: function (response) {
+                                                        $('#table').jtable('load');
+                                                        alert(response);
+                                                        $('#mailstatus').hide();
+                                                    },
+                                                    error: function () {
+                                                    }
+                                                });
+                                            }
+                                            });
+                            return $img;
+                        }
+                        },
+                                },
+
+                            }, function (data) {
+                                data.childTable.jtable('load');
+                            });
+                        });
+                        return $img;
+                    }
+                },
+                Basic: {
+                    title: 'Basic',
+                    width: '2%',
+                    listClass:'text-right'
+                },
+                Hra: {
+                    title: 'Hra',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                Conv: {
+                    title: 'Conv',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                Other: {
+                    title: 'Other',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                Extra9: {
+                    title: 'Extra9',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                Extra12: {
+                    title: 'Extra12',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                Other6: {
+                    title: 'Other6',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                GrossPay: {
+                    title: 'GrossPay',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                PfWorker: {
+                    title: 'PF',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                EsiWorker: {
+                    title: 'ESI',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                TDS: {
+                    title: 'TDS',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                Advance: {
+                    title: 'Advance',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                TotalDedn: {
+                    title: 'TotalDedn',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                NetPay: {
+                    title: 'NetPay',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                SendPaySlip: {
+                    title: "MailPaySlip",
+                    edit: false,
+                    create: false,
+                    width: '1%',
+                    listClass:'text-center',
+                    display: function (data) {
+                        var $img = $('<i title="Mail Bulk PaySlip" class="fa fa-paper-plane fa-1x pointer text-primary"/>');
+                        $img.click(function () {
+                            $('#mailstatus').show();
+                            var empid = data.record.Id;
+                            var strconfirm = confirm("Are you sure you want to Sent Bulk Mail?");
+                            if (strconfirm == true) {
+                                $.ajax({
+                                    type: 'POST',
+                                    datatype: 'JSON',
+                                    url: "@Url.Action("SendBulkPayslip", "PayslipData")",
+                                    data: { masterid: empid },
+                                    success: function (response) {
+                                        $('#table').jtable('load');
+                                        alert(response);
+                                        $('#mailstatus').hide();
+                                },
+                                error: function () {
+                                }
+                            });
+                        }
+                        });
+                            return $img;
+                        }
+                  },
+
+            },
+
+        });
+
+        $('#table').jtable('load');
+    });
+</script>
+
+
+

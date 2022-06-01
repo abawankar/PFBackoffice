@@ -1,0 +1,252 @@
+﻿@using UI.Helper
+@{
+    ViewBag.Title = "View Billing";
+}
+
+<div class="panel panel-info topmar-10">
+    <div class="panel-heading">
+        @Html.MyActionLink("<span class='fa fa-dashboard fa-1x'></span> Dashboard", "Dashboard", "Index", "Dashboard", null, new { @class = "btn btn-info btn-sm" })
+        @Html.Partial("_BillingMenu")
+
+        @Html.DropDownList("BillingCompId", new SelectList((ViewBag.billingcomp) as SelectList, "Value", "Text"), "Select Billing Company", new { @class = "search-box" })
+        @Html.DropDownList("CompId", new SelectList((ViewBag.comp) as SelectList, "Value", "Text"), "Select Company", new { @class = "search-box" })
+        @Html.DropDownList("status", new SelectList((ViewBag.status) as SelectList, "Value", "Text"), "Select Status", new { @class = "search-box" })
+
+        <i title="search" id="searchbtn" class="fa fa-search btn btn-info"></i>
+
+        <a href="BillingMaster/AddBill" class="btn btn-success btn-sm pull-right">
+            <span class="fa fa-plus fa-1x"></span> Add
+        </a>
+    </div>
+    <div class="panel-body">
+        <div id="table"></div>
+    </div>
+</div>
+
+@*Filtering*@
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#export').click(function (e) {
+            var url = "/Employee/ExportMember";
+            window.open(url);
+            e.preventDefault();
+        });
+
+        $('#searchbtn').click(function (e) {
+            var id = $('#comp').val();
+            if (id == 0) {
+                alert("Select Company first!");
+                return;
+            }
+            $('#table').jtable('load', {
+                status: $('#status').val(), billcompid: $('#BillingCompId').val(), compid: $('#CompId').val()
+            });
+        });
+    });
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#table').jtable({
+            title: 'View Billing',
+            paging: true,
+            pagesize: 3,
+            sorting: true,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '@Url.Action("List")',
+                updateAction: '@Url.Action("Update")',
+            },
+            fields: {
+                Id: {
+                    title: 'Id',
+                    width:'1%',
+                    key: true,
+                    create: false,
+                    edit: false,
+                    list: false
+                },
+                CompId: {
+                    title: 'Company',
+                    width: '2%',
+                    edit: false,
+                    options: '@Url.Action("GetCompanyOptions", "Company")',
+                },
+                BillingCompId: {
+                    title: 'BillingCompany',
+                    width: '2%',
+                    edit: false,
+                    options: '@Url.Action("GetBillingCompanyOptions", "BillingCompany")',
+                },
+                Date: {
+                    title: 'Date',
+                    width: '1%',
+                    type: 'date',
+                    edit: false,
+                    display: function (data) {
+                        if (data.record.Date != null)
+                            return moment(data.record.Date).format('DD/MM/YYYY')
+                    },
+                },
+                BillNo: {
+                    title: 'BillNo',
+                    width: '1%',
+                    edit: false,
+                },
+                InvAmt: {
+                    title: 'InvAmount',
+                    width: '1%',
+                    edit: false,
+                },
+                GSTAmount: {
+                    title: 'GSTAmount',
+                    width: '1%',
+                    edit: false,
+                },
+                GrandTotal: {
+                    title: 'GrandTotal',
+                    width: '1%',
+                    edit: false,
+                },
+                Status: {
+                    title: 'Status',
+                    width: '0.5%',
+                    options: { "1": "Pending", "2": "Received", "3": "Cancelled" },
+                    display: function (data) {
+                        if (data.record.Status == 1)
+                            return "<div class='blue'>" + "Pending" + "</div>";
+                        if (data.record.Status == 2)
+                            return "<div class='green'>" + "Received" + "</div>";
+                        if (data.record.Status == 3)
+                            return "<div class='red'>" + "Cancelled" + "</div>";
+                    },
+                },
+                Transaction: {
+                    title: '',
+                    width: '0.1%',
+                    sorting: false,
+                    create: false,
+                    edit: false,
+                    listClass: 'child-opener-image-column',
+                    display: function (data) {
+                        var $img = $('<i title="Billing Transaction" class="fa fa-list-alt fa-1x pointer text-primary"/>');
+                        $img.click(function () {
+                            $('#table').jtable('openChildTable', $img.closest('tr'),
+                            {
+                                title: data.record.BillNo + " - Details",
+                                paging: false,
+                                pagesize: 3,
+                                sorting: true,
+                                defaultSorting: 'FName ASC',
+                                actions: {
+                                    listAction: '@Url.Action("BillTrans")?billid=' + data.record.Id,
+                                },
+                                fields: {
+                                    Id: {
+                                        title: 'Id',
+                                        width: '1%',
+                                        key: true,
+                                        create: false,
+                                        edit: false,
+                                        list: false
+                                    },
+                                     ServiceId: {
+                                        title: 'ServiceName',
+                                        width: '9%',
+                                        options: '@Url.Action("GetServiceOptions", "ServiceName")',
+                                    },
+                                    MonthYear: {
+                                        title: 'Month',
+                                        width: '2%',
+                                        options: '@Url.Action("GetBillingPeriod")',
+                                    },
+                                    Year: {
+                                        title: 'Year',
+                                        width: '2%',
+                                        options: '@Url.Action("GetYear")',
+                                    },
+                                    Amount: {
+                                        title: 'Amount',
+                                        width: '2%'
+                                    },
+                                    CGSTRate: {
+                                        title: 'CGSTRate%',
+                                        width: '1%',
+                                        edit:false
+                                    },
+                                    CGST: {
+                                        title: 'CGST',
+                                        width: '1%',
+                                        edit: false
+                                    },
+                                    SGSTRate: {
+                                        title: 'SGSTRate%',
+                                        width: '1%',
+                                        edit: false
+                                    },
+                                    SGST: {
+                                        title: 'SGST',
+                                        width: '1%',
+                                        edit: false
+                                    },
+                                    IGSTRate: {
+                                        title: 'IGSTRate%',
+                                        width: '1%',
+                                        edit: false
+                                    },
+                                    IGST: {
+                                        title: 'IGST',
+                                        width: '1%',
+                                        edit: false
+                                    },
+                                },
+                                formCreated: function (event, data) {
+                                    data.form.validationEngine();
+                                },
+                                formSubmitting: function (event, data) {
+                                    return data.form.validationEngine('validate');
+                                },
+                                formClosed: function (event, data) {
+                                    data.form.validationEngine('hide');
+                                    data.form.validationEngine('detach');
+                                }
+                            }, function (data) {
+                                data.childTable.jtable('load');
+                            });
+                        });
+                        return $img;
+                    }
+                },
+                print: {
+                    title: "",
+                    edit: false,
+                    create: false,
+                    width: '0.1%',
+                    display: function (data) {
+                        var $img = $('<i title="Print Bill" class="fa fa-print fa-1x pointer text-primary"/>');
+                        $img.click(function () {
+                            var url = "/BillingMaster/PrintBill/" + data.record.Id;
+                            window.open(url);
+                        });
+                        return $img;
+                    }
+                },
+            },
+            formCreated: function (event, data) {
+                data.form.validationEngine();
+            },
+            formSubmitting: function (event, data) {
+                return data.form.validationEngine('validate');
+            },
+            formClosed: function (event, data) {
+                data.form.validationEngine('hide');
+                data.form.validationEngine('detach');
+            }
+        });
+        $('#table').jtable('load');
+    });
+</script>
+
+

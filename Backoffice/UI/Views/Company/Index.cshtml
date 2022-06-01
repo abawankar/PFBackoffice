@@ -1,0 +1,378 @@
+﻿@using UI.Helper
+@{
+    ViewBag.Title = "Company";
+}
+
+<div class="panel panel-info topmar-10">
+    <div class="panel-heading">
+        @Html.MyActionLink("<span class='fa fa-dashboard fa-1x'></span> Dashboard", "Dashboard", "Index", "Dashboard", null, new { @class = "btn btn-info btn-sm" })
+        @Html.MyActionLink("<span class='fa fa-user fa-1x'></span> Employee", "Employee", "Index", "Employee", null, new { @class = "btn btn-info btn-sm" })
+        @Html.MyActionLink("<span class='fa fa-list-ul fa-1x'></span> Statutory", "Statutory", "Index", "StatutoryCode", null, new { @class = "btn btn-info btn-sm" })
+        @Html.MyActionLink("<span class='fa fa-upload fa-1x'></span> Bulk Upload", "Upload Bulk Company", "BulkUpload", "Company", null, new { @class = "btn btn-info btn-sm pull-right" })
+        @Html.DropDownList("comp", new SelectList((ViewBag.comp) as SelectList, "Value", "Text"), "Select Company", new { @class = "search-box" })
+    </div>
+    <div class="panel-body">
+        <div id="table"></div>
+    </div>
+</div>
+
+
+@*Filtering*@
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $("#comp").change(function (e) {
+            e.preventDefault();
+            $('#table').jtable('load', {
+                compid: $('#comp').val()
+            });
+        });
+    });
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#table').jtable({
+            title: 'Company',
+            paging: true,
+            pagesize: 3,
+            sorting: true,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '@Url.Action("List")',
+                updateAction: '@Url.Action("Update")',
+                createAction: '@Url.Action("Create")'
+            },
+            fields: {
+                Id: {
+                    title: 'Id',
+                    width:'1%',
+                    key: true,
+                    create: false,
+                    edit: false,
+                    list: false
+                },
+                Code: {
+                    title: 'Code',
+                    width: '2%'
+                },
+                Name: {
+                    title: 'Name',
+                    width: '2%'
+                },
+                PAN: {
+                    title: 'PAN',
+                    width: '2%'
+                },
+                GST: {
+                    title: 'GSTNo',
+                    width: '2%'
+                },
+                Address: {
+                    title: 'Address',
+                    width: '2%',
+                    type:'textarea',
+                    visibility:'hidden'
+                },
+                StateCode: {
+                    title: 'StateCode',
+                    width: '1%',
+                    list: false
+                },
+                ServiceTax: {
+                    title: 'ServiceTax',
+                    width: '2%',
+                    visibility: 'hidden'
+                },
+                Emailid: {
+                    title: 'Emailid',
+                    width: '2%'
+                },
+                PhoneNo: {
+                    title: 'PhoneNo',
+                    width: '2%'
+                },
+                CIN: {
+                    title: 'CIN',
+                    width: '2%'
+                },
+                StatutoryCodeId: {
+                    title: 'Statutory',
+                    width: '2%',
+                    options: '@Url.Action("GetStatutoryCodeOptions", "StatutoryCode")',
+                },
+                EstablishmentCode: {
+                    title: 'EstablishmentCode',
+                    width: '2%'
+                },
+                ESIRegistrationNumber: {
+                    title: 'ESIRegistrationNumber',
+                    width: '2%'
+                },
+                RegDate: {
+                    title: 'RegDate',
+                    width: '2%',
+                    type: 'date',
+                    visibility:'hidden',
+                    display: function (data) {
+                        if (data.record.RegDate != null)
+                            return moment(data.record.RegDate).format('DD/MM/YYYY')
+                    },
+                },
+                RegNumber: {
+                    title: 'RegNumber',
+                    width: '2%',
+                    visibility: 'hidden'
+                },
+                WebSite: {
+                    title: 'WebSite',
+                    width: '2%',
+                    list: false
+                },
+                PFEmployee: {
+                    title: 'PF',
+                    width: '0.1%',
+                    sorting: false,
+                    create: false,
+                    edit: false,
+                    listClass: 'child-opener-image-column',
+                    display: function (comp) {
+                        var $img = $('<i title="PF Employee" class="fa fa-users fa-1x pointer text-primary"/>');
+                        $img.click(function () {
+                            $('#table').jtable('openChildTable', $img.closest('tr'),
+                            {
+                                title: comp.record.Name + " - Employee",
+                                paging: true,
+                                pagesize: 3,
+                                sorting: true,
+                                defaultSorting: 'FName ASC',
+                                actions: {
+                                    listAction: '@Url.Action("GetEmpByComp","Employee")?compid=' + comp.record.Id,
+                                    createAction: '@Url.Action("CreateEmp", "Employee")?compid=' + comp.record.Id,
+                                    updateAction: '@Url.Action("Update","Employee")',
+                                },
+                                fields: {
+                                    Id: {
+                                        title: 'Id',
+                                        width: '1%',
+                                        key: true,
+                                        create: false,
+                                        edit: false,
+                                        list: false
+                                    },
+                                    Branch: {
+                                        title: 'Branch',
+                                        width: '2%',
+                                        list: false
+                                    },
+                                    EmpCode: {
+                                        title: 'EmpCode',
+                                        width: '2%',
+                                        display: function (data) {
+                                            if (data.record.Status == 2)
+                                                return "<div class='red'>" + data.record.EmpCode + "</div>";
+                                            if (data.record.Status == 1)
+                                                return "<div class='green'>" + data.record.EmpCode + "</div>";
+                                        },
+                                    },
+                                    Name: {
+                                        title: 'Name',
+                                        width: '2%'
+                                    },
+                                    UAN: {
+                                        title: 'UAN',
+                                        width: '2%',
+
+                                    },
+                                    MemberId: {
+                                        title: 'MemberId',
+                                        width: '2%'
+                                    },
+                                    ESIIP: {
+                                        title: 'ESIIP',
+                                        width: '2%',
+                                    },
+                                    Gender: {
+                                        title: 'Gender',
+                                        width: '2%',
+                                        options: { "M": "Male", "F": "Female", "T": "Transgender" }
+                                    },
+                                    Nationality: {
+                                        title: 'Nationality',
+                                        width: '2%'
+                                    },
+                                    MaritalStatus: {
+                                        title: 'MaritalStatus',
+                                        width: '2%',
+                                        options: { "M": "Married", "U": "Un-Married", "T": "Widow/Widower", "D": "MaritalStatus" }
+                                    },
+                                    Nationality: {
+                                        title: 'Nationality',
+                                        width: '2%',
+                                        options: '@Url.Action("GetNationality", "Country")',
+                                    },
+                                    ForHName: {
+                                        title: 'F/H Name',
+                                        width: '2%'
+                                    },
+                                    ForHFlag: {
+                                        title: 'F/H',
+                                        width: '2%',
+                                        options: { "F": "Father", "H": "Husband" }
+                                    },
+                                    DOB: {
+                                        title: 'DOB',
+                                        width: '2%',
+                                        type: 'date',
+                                        display: function (data) {
+                                            if (data.record.DOB != null)
+                                                return moment(data.record.DOB).format('DD/MM/YYYY')
+                                        },
+                                    },
+                                    DOJ: {
+                                        title: 'DOJ',
+                                        width: '2%',
+                                        type: 'date',
+                                        display: function (data) {
+                                            if (data.record.DOJ != null)
+                                                return moment(data.record.DOJ).format('DD/MM/YYYY')
+                                        },
+                                    },
+                                    DOE: {
+                                        title: 'DOE',
+                                        width: '2%',
+                                        type: 'date',
+                                        display: function (data) {
+                                            if (data.record.DOE != null)
+                                                return moment(data.record.DOE).format('DD/MM/YYYY')
+                                        },
+                                    },
+                                    CellingEPF: {
+                                        title: 'CellingEPF',
+                                        width: '2%',
+                                        options: { "Y": "Yes", "N": "No" }
+                                    },
+                                    CellingEPS: {
+                                        title: 'CellingEPS',
+                                        width: '2%',
+                                        options: { "Y": "Yes", "Z": "Zero", "N": "No" }
+                                    },
+                                    VPF: {
+                                        title: 'VPF',
+                                        width: '2%'
+                                    },
+                                    PFExempted: {
+                                        title: 'PFExempted',
+                                        width: '2%',
+                                        options: { "N": "No", "Y": "Yes" }
+                                    },
+                                    ESIExempted: {
+                                        title: 'ESIExempted',
+                                        width: '2%',
+                                        options: { "Y": "Yes", "N": "No" }
+                                    },
+                                },
+                                formCreated: function (event, data) {
+                                    $("#Edit-DOB").removeClass('hasDatepicker');
+                                    $("#Edit-DOB").datepicker({ yearRange: "-58:-12", changeMonth: true, changeYear: true, dateFormat: 'yy-mm-dd' });
+
+                                    $("#Edit-DOJ").removeClass('hasDatepicker');
+                                    $("#Edit-DOJ").datepicker({ yearRange: "-58:+0", changeMonth: true, changeYear: true, dateFormat: 'yy-mm-dd' });
+                                    data.form.validationEngine();
+                                },
+                                formSubmitting: function (event, data) {
+                                    return data.form.validationEngine('validate');
+                                },
+                                formClosed: function (event, data) {
+                                    data.form.validationEngine('hide');
+                                    data.form.validationEngine('detach');
+                                }
+                            }, function (data) {
+                                data.childTable.jtable('load');
+                            });
+                        });
+                        return $img;
+                    }
+                },
+                DigitalSign: {
+                    title: '',
+                    width: '0.1%',
+                    sorting: false,
+                    create: false,
+                    edit: false,
+                    listClass: 'child-opener-image-column',
+                    display: function (comp) {
+                        var $img = $('<i title="Digital Sign" class="fa fa-key fa-1x pointer text-primary"/>');
+                        $img.click(function () {
+                            $('#table').jtable('openChildTable', $img.closest('tr'),
+                            {
+                                title: comp.record.Name + " - Digital Sign",
+                                paging: false,
+                                pagesize: 3,
+                                sorting: false,
+                                actions: {
+                                    listAction: '@Url.Action("SignatoryList")?compid=' + comp.record.Id,
+                                    createAction: '@Url.Action("CreateSign")?compid=' + comp.record.Id,
+                                    updateAction: '@Url.Action("UpdateSign")',
+                                },
+                                fields: {
+                                    Id: {
+                                        title: 'Id',
+                                        width: '1%',
+                                        key: true,
+                                        create: false,
+                                        edit: false,
+                                        list: false
+                                    },
+                                    Name: {
+                                        title: 'Name',
+                                        width: '2%'
+                                    },
+                                    Validity: {
+                                        title: 'Validity',
+                                        width: '20%',
+                                        type: 'date',
+                                        display: function (data) {
+                                            if (data.record.Validity != null)
+                                                return moment(data.record.Validity).format('DD/MMM/YYYY')
+                                        },
+                                    },
+                                },
+                                formCreated: function (event, data) {
+                                    data.form.validationEngine();
+                                },
+                                formSubmitting: function (event, data) {
+                                    return data.form.validationEngine('validate');
+                                },
+                                formClosed: function (event, data) {
+                                    data.form.validationEngine('hide');
+                                    data.form.validationEngine('detach');
+                                }
+                            }, function (data) {
+                                data.childTable.jtable('load');
+                            });
+                        });
+                        return $img;
+                    }
+                },
+            },
+            formCreated: function (event, data) {
+                data.form.find('input[name="Name"]').addClass('validate[required]');
+
+                $("#Edit-RegDate").removeClass('hasDatepicker');
+                $("#Edit-RegDate").datepicker({ yearRange: "-50:+0", changeMonth: true, changeYear: true, dateFormat: 'yy-mm-dd' });
+
+                data.form.validationEngine();
+            },
+            formSubmitting: function (event, data) {
+                return data.form.validationEngine('validate');
+            },
+            formClosed: function (event, data) {
+                data.form.validationEngine('hide');
+                data.form.validationEngine('detach');
+            }
+        });
+        $('#table').jtable('load');
+    });
+</script>

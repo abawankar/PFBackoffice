@@ -1,0 +1,146 @@
+﻿@using UI.Helper
+@{
+    ViewBag.Title = "Bulk Upload - PMRPY";
+}
+
+<div class="panel panel-info topmar-10">
+    <div class="panel-heading">
+        @Html.MyActionLink("<span class='fa fa-dashboard fa-1x'></span> Dashboard", "Dashboard", "Index", "Dashboard", null, new { @class = "btn btn-info btn-sm" })
+        @Html.DropDownList("monthyear", new SelectList((ViewBag.monthyear) as SelectList, "Value", "Text"), "Select Month", new { @class = "search-box" })
+        @Html.DropDownList("comp", new SelectList((ViewBag.comp) as SelectList, "Value", "Text"), "Select Company", new { @class = "search-box" })
+        <i title="Genrate TXT file" id="exportbtn" class="fa fa-download btn btn-info hidden"> Genrate TXT File</i>
+        <i title="Refresh" id="refreshbtn" class="fa fa-refresh btn btn-info pull-right"> Refresh</i>
+    </div>
+    <div class="panel-body">
+        <div id="table" class="table-responsive"></div>
+    </div>
+</div>
+
+@*Filtering*@
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#refreshbtn').click(function (e) {
+            e.preventDefault();
+            location.reload();
+        });
+
+        $("#comp").change(function (e) {
+            e.preventDefault();
+            var month = $('#monthyear').val();
+            if (month == "")
+            {
+                alert("Select Month First");
+                $('#comp').val('');
+                return;
+            }
+            $('#table').jtable('load', {
+                compid: $('#comp').val(), month: $('#monthyear').val()
+            });
+            $("#exportbtn").removeClass("hidden");
+
+        });
+
+        $('#exportbtn').click(function (e) {
+            e.preventDefault();
+            var $selecedRows = $('#table').jtable('selectedRows');
+            var list = 0;
+            $selecedRows.each(function () {
+                var record = $(this).data('record');
+                list = list + "," + record.Id;
+            });
+            var url = "GenrateTxtFile?list=" + list;
+            window.open(url);
+            $("#exportbtn").addClass("hidden");
+        });
+
+    });
+</script>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#load').hide();
+        $('#load1').hide();
+        $("#message").fadeIn("Slow").delay(2000).fadeOut("Slow");
+
+        $('#table').jtable({
+            title: 'PMRPY Employee',
+            paging: true,
+            pagesize: 3,
+            sorting: false,
+            selecting: true,
+            multiselect: true,
+            selectOnRowClick: false,
+            selectingCheckboxes: true,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '@Url.Action("PMRPYList")',
+                updateAction: '@Url.Action("UpdatePMRY")',
+            },
+            fields: {
+                Id: {
+                    title: 'Id',
+                    width: '1%',
+                    key: true,
+                    create: false,
+                    edit: false,
+                    list: false
+                },
+                CompName: {
+                    title: 'CompName',
+                    width: '5%',
+                    edit: false,
+                },
+                EmpName: {
+                    title: 'Name',
+                    width: '5%',
+                    edit: false,
+                },
+                UAN: {
+                    title: 'UAN',
+                    width: '5%',
+                    edit: false,
+                },
+                Aaadhaar: {
+                    title: 'Aaadhaar',
+                    width: '5%',
+                    edit: false,
+                },
+                GrossWages: {
+                    title: 'GrossWages',
+                    width: '1%',
+                    listClass:'text-center',
+                    edit: false,
+                },
+                DOJ: {
+                    title: 'DOJ',
+                    width: '2%',
+                    type: 'date',
+                    edit: false,
+                    display: function (data) {
+                        if (data.record.DOJ != null)
+                            return moment(data.record.DOJ).format('DD/MM/YYYY')
+                    },
+                },
+                JobDescription: {
+                    title: 'JobDescription',
+                    width: '1%',
+                },
+            },
+            formCreated: function (event, data) {
+                data.form.validationEngine();
+            },
+            formSubmitting: function (event, data) {
+                return data.form.validationEngine('validate');
+            },
+            formClosed: function (event, data) {
+                data.form.validationEngine('hide');
+                data.form.validationEngine('detach');
+            }
+        });
+    });
+</script>
+
+
+

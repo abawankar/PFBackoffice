@@ -1,0 +1,62 @@
+﻿
+<div class="panel panel-info topmar-10">
+    <div class="panel-heading"> Digital Signatory Duelist </div>
+    <div class="panel-body">
+        <div id="dsctable"></div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#dsctable').jtable({
+            title: 'DSC Due List',
+            paging: false,
+            pagesize: 3,
+            sorting: false,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '@Url.Action("DashboardList")',
+            },
+            fields: {
+                Id: {
+                    title: 'Id',
+                    width:'1%',
+                    key: true,
+                    create: false,
+                    edit: false,
+                    list: false
+                },
+                CompName: {
+                    title: 'CompName',
+                    width: '5%'
+                },
+                Name: {
+                    title: 'Name',
+                    width: '5%'
+                },
+                Validity: {
+                    title: 'Validity Till',
+                    width: '5%',
+                    type: 'date',
+                    display: function (data) {
+                        if (data.record.Validity != null)
+                            return moment(data.record.Validity).format('DD/MMM/YYYY')
+                    },
+                },
+                Days: {
+                    title: 'Days',
+                    width: '0.5%',
+                    display: function (data) {
+                        var x = data.record.Days;
+                        if (x <= 30) {
+                            return "<div class='red'>" + x + "</div>";
+                        }
+                    },
+                },
+            },
+        });
+        $('#dsctable').jtable('load');
+    });
+</script>

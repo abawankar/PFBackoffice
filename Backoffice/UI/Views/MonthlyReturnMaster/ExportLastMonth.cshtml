@@ -1,0 +1,88 @@
+﻿@using UI.Helper
+@{
+    ViewBag.Title = "ExportLastMonth";
+}
+
+<div class="panel panel-info topmar-10">
+    <div class="panel-heading">
+        @Html.MyActionLink("<span class='fa fa-dashboard fa-1x'></span> Dashboard", "Dashboard", "Index", "Dashboard", null, new { @class = "btn btn-info btn-sm" })
+        <div class="btn-group dropdown">
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="caret"></span>
+                <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu">
+                <li>@Html.ActionLink("Prepare Monthly Return", "Index", "MonthlyReturnDraft")</li>
+                <li>@Html.ActionLink("Process Monthly Return", "Index", "ProcessMonthlyReturn")</li>
+                <li>@Html.ActionLink("Upload PF Challan", "PFChallan", "MonthlyReturnMaster")</li>
+                <li>@Html.ActionLink("Upload Payment Receipt", "PaymentReceipt", "MonthlyReturnMaster")</li>
+            </ul>
+        </div>
+        @Html.DropDownList("comp", new SelectList((ViewBag.comp) as SelectList, "Value", "Text"), "Select Company", new { @class = "search-box" })
+        @Html.DropDownList("monthyear", new SelectList((ViewBag.monthyear) as SelectList, "Value", "Text"), "Select Company", new { @class = "search-box" })
+        <i title="Export To Excel" id="export" style="display:none" class="fa fa-file-excel-o fa-1x btn btn-link"> Export</i>
+    </div>
+    <div class="panel-body">
+            <div id="message">
+                <h1>Salary Exported Successfully</h1>
+            </div>
+    </div>
+</div>
+
+@*Filtering*@
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#monthyear").hide();
+        $("#export").hide();
+        $("#message").hide();
+
+        $('#export').click(function (e) {
+            var id = $('#comp').val();
+            var my = $('#monthyear').val();
+            var url = "/MonthlyReturnMaster/SalaryLastMonthxls?my="+my;
+            window.open(url);
+            e.preventDefault();
+            $("#monthyear").hide();
+            $("#export").hide();
+            $("#message").show();
+            $('#comp').val('');
+        });
+
+        $("#monthyear").change(function (e) {
+            e.preventDefault();
+            var my = $('#monthyear').val();
+            if(my == 0)
+                $("#export").hide();
+            else
+                $("#export").show();
+
+        });
+
+        $("#comp").change(function (e) {
+            e.preventDefault();
+            var my = $('#monthyear');
+            var id = $('#comp').val()
+            $.ajax({
+                type: 'POST',
+                datatype: 'JSON',
+                url: "@Url.Action("GetMonthYear","MonthlyReturnMaster")",
+                data: { Compid: id },
+                success: function (data) {
+                var items = "";
+                items += "<option value=\"0\">Select Month</option>";
+                $.each(data.Result, function (i, item) {
+                    items = items + "<option value=\"" + item.Id + "\">" + item.MonthYear + "</option>";
+                });
+                my.html("");
+                my.html(items);
+                $("#monthyear").show();
+                $("#message").hide();
+            },
+            error: function () {
+            }
+        });
+        });
+
+    });
+</script>
+

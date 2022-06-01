@@ -1,0 +1,355 @@
+﻿@using UI.Helper
+@{
+    ViewBag.Title = "Monthly PF Return";
+}
+
+<div class="panel panel-info topmar-10">
+    <div class="panel-heading">
+        @Html.MyActionLink("<span class='fa fa-dashboard fa-1x'></span> Dashboard", "Dashboard", "Index", "Dashboard", null, new { @class = "btn btn-info btn-sm" })
+       
+        @Html.DropDownList("monthyear", new SelectList((ViewBag.monthyear) as SelectList, "Value", "Text"), "Select Month", new { @class = "search-box" })
+        @Html.DropDownList("comp", new SelectList((ViewBag.comp) as SelectList, "Value", "Text"), "Select Company", new { @class = "search-box" })
+    </div>
+    <div class="panel-body">
+        <div id="table" class="table-responsive"></div>
+    </div>
+</div>
+
+@*Filtering*@
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $("#comp").change(function (e) {
+            e.preventDefault();
+            $('#table').jtable('load', {
+                id: $('#comp').val(), monthyear: $('#monthyear').val()
+            });
+        });
+
+    });
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#load').hide();
+        $('#load1').hide();
+        $("#message").fadeIn("Slow").delay(2000).fadeOut("Slow");
+
+        $('#table').jtable({
+            title: 'Monthly PF Return',
+            paging: true,
+            pagesize: 3,
+            sorting: false,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '@Url.Action("List")',
+            },
+            fields: {
+                Id: {
+                    title: 'Id',
+                    width: '1%',
+                    key: true,
+                    create: false,
+                    edit: false,
+                    list: false
+                },
+                CompId: {
+                    title: 'Company',
+                    width: '2%',
+                    options: '@Url.Action("GetCompanyOptions", "Company")',
+                    edit: false,
+                },
+                ContType: {
+                    title: 'ECRType',
+                    width: '1%',
+                    options: { "E": "ECR", "A": "Arrear", "S": "Suppliment" },
+                    edit: false,
+                },
+                ContributionDetails: {
+                    title: 'WageMonth',
+                    width: '0.1%',
+                    sorting: false,
+                    create: false,
+                    edit: false,
+                    listClass: 'child-opener-image-column',
+                    display: function (comp) {
+                        var $img = $('<span title="ContributionDetails" class="1x pointer text-primary">' + comp.record.MonthYear + "</span>");
+                        $img.click(function () {
+                            $('#table').jtable('openChildTable', $img.closest('tr'),
+                            {
+                                title: "Contribution Details-" + comp.record.MonthYear,
+                                paging: true,
+                                pagesize: 3,
+                                actions: {
+                                    listAction: '@Url.Action("FullDetails")?id=' + comp.record.Id
+                                },
+                                fields: {
+                                    Id: {
+                                        title: 'Id',
+                                        width: '1%',
+                                        key: true,
+                                        create: false,
+                                        edit: false,
+                                        list: false
+                                    },
+                                    EmpCode: {
+                                        title: 'EmpCode',
+                                        width: '1%',
+                                    },
+                                    Name: {
+                                        title: 'Name',
+                                        width: '5%',
+                                    },
+                                    UAN: {
+                                        title: 'UAN',
+                                        width: '2%',
+                                    },
+                                    GrossWages: {
+                                        title: 'GrossWages',
+                                        width: '1%',
+                                        listClass: 'text-right',
+                                    },
+                                    EPFWages: {
+                                        title: 'EPFWages',
+                                        width: '1%',
+                                        listClass: 'text-right',
+                                    },
+                                    EPSWages: {
+                                        title: 'EPSWages',
+                                        width: '1%',
+                                        listClass: 'text-right',
+                                    },
+                                    EDLIWages: {
+                                        title: 'EDLIWages',
+                                        width: '1%',
+                                        listClass: 'text-right',
+                                    },
+                                    EECont: {
+                                        title: 'EECont',
+                                        width: '1%',
+                                        listClass: 'text-right',
+                                    },
+                                    EPSCont: {
+                                        title: 'EPSCont',
+                                        width: '1%',
+                                        listClass: 'text-right',
+                                    },
+                                    ERCont: {
+                                        title: 'ERCont',
+                                        width: '1%',
+                                        listClass: 'text-right',
+                                    },
+                                    NCPDays: {
+                                        title: 'NCPDays',
+                                        width: '1%',
+                                        listClass: 'text-center',
+                                    },
+                                },
+                                formCreated: function (event, data) {
+                                    data.form.validationEngine();
+                                },
+                                formSubmitting: function (event, data) {
+                                    return data.form.validationEngine('validate');
+                                },
+                                formClosed: function (event, data) {
+                                    data.form.validationEngine('hide');
+                                    data.form.validationEngine('detach');
+                                }
+                            }, function (data) {
+                                data.childTable.jtable('load');
+                            });
+                        });
+                        return $img;
+                    }
+                },
+                ExemptedEmp: {
+                    title: 'Exempted Emp',
+                    width: '1%',
+                    listClass: 'text-center',
+                    edit: false,
+                },
+                EPFEmp: {
+                    title: 'EPFEmp',
+                    width: '1%',
+                    listClass: 'text-right',
+                    edit: false,
+                },
+                EPSEmp: {
+                    title: 'EPSEmp',
+                    width: '1%',
+                    listClass: 'text-right',
+                    edit: false,
+                },
+                ExemptedGrossWages: {
+                    title: 'Exempted GrossWages',
+                    width: '2%',
+                    edit: false,
+                    listClass: 'text-right',
+                    display: function (data) {
+                        return addCommas(data.record.ExemptedGrossWages.toFixed(0));
+                    }
+                },
+                EPFGrossWages: {
+                    title: 'EPF GrossWages',
+                    width: '2%',
+                    edit: false,
+                    listClass: 'text-right',
+                    display: function (data) {
+                        return addCommas(data.record.EPFGrossWages.toFixed(0));
+                    }
+                },
+                EPFWages: {
+                    title: 'EPFWages',
+                    width: '2%',
+                    edit: false,
+                    listClass: 'text-right',
+                    display: function (data) {
+                        return addCommas(data.record.EPFWages.toFixed(0));
+                    }
+                },
+                EPSWages: {
+                    title: 'EPSWages',
+                    width: '2%',
+                    listClass: 'text-right',
+                    edit: false,
+                    display: function (data) {
+                        return addCommas(data.record.EPSWages.toFixed(0));
+                    }
+                },
+                EECont: {
+                    title: 'EECont',
+                    width: '2%',
+                    edit: false,
+                    listClass: 'text-right',
+                    display: function (data) {
+                        return addCommas(data.record.EECont.toFixed(0));
+                    }
+                },
+                ERCont: {
+                    title: 'ERCont',
+                    width: '2%',
+                    listClass: 'text-right',
+                    edit: false,
+                    display: function (data) {
+                        return addCommas(data.record.ERCont.toFixed(0));
+                    }
+                },
+                EPSCont: {
+                    title: 'EPSCont',
+                    width: '2%',
+                    listClass: 'text-right',
+                    edit: false,
+                    display: function (data) {
+                        return addCommas(data.record.EPSCont.toFixed(0));
+                    }
+                },
+                Ac2: {
+                    title: 'A/c2',
+                    width: '2%',
+                    listClass: 'text-right',
+                    edit: false,
+                    display: function (data) {
+                        return addCommas(data.record.Ac2.toFixed(0));
+                    }
+                },
+                Ac21: {
+                    title: 'A/c21',
+                    width: '2%',
+                    listClass: 'text-right',
+                    edit: false,
+                    display: function (data) {
+                        return addCommas(data.record.Ac21.toFixed(0));
+                    }
+                },
+                NCPDays: {
+                    title: 'NCP',
+                    width: '1%',
+                    listClass: 'text-center',
+                    edit: false,
+                },
+                TRRN: {
+                    title: 'TRRN',
+                    width: '2%',
+                    display: function (data) {
+                        if (data.record.TRRN != null) {
+                            var $img = $('<a title="TRRN" class="child-opener-image pointer " src="">' + data.record.TRRN + '</a>');
+                            $img.click(function () {
+                                var file = data.record.TRRN;
+                                var url = "Upload/PFChallan/" + file + ".pdf";
+                                window.open(url);
+                            });
+                            return $img
+                        }
+                    }
+                },
+                CRN: {
+                    title: 'CRN',
+                    width: '2%',
+                    display: function (data) {
+                        if (data.record.CRN != null) {
+                            var $img = $('<a title="Payment Receipt" class="child-opener-image pointer " src="">' + data.record.CRN + '</a>');
+                            $img.click(function () {
+                                var file = data.record.CRN;
+                                var url = "Upload/PFPaymentReceipt/" + file + ".pdf";
+                                window.open(url);
+                            });
+                            return $img
+                        }
+                    }
+                },
+                PaymentDate: {
+                    title: 'PaymentDate',
+                    width: '2%',
+                    type: 'date',
+                    display: function (data) {
+                        if (data.record.PaymentDate != null)
+                            return moment(data.record.PaymentDate).format('DD/MMM/YYYY')
+                    },
+                },
+                Delete: {
+                    title: "",
+                    edit: false,
+                    create: false,
+                    width: '1%',
+                    display: function (data) {
+                        var $img = $('<i title="Delete" class="fa fa-trash fa-1x pointer text-primary"/>');
+                        $img.click(function () {
+                            var id = data.record.CompId;
+                            var month = data.record.MonthYear;
+                            var ecr = data.record.ContType;
+                            var strconfirm = confirm("Are you sure you want to delete?");
+                            if (strconfirm == true) {
+                                $.ajax({
+                                    type: 'POST',
+                                    datatype: 'JSON',
+                                    url: "@Url.Action("DeleteMonthlyReturn", "MonthlyReturnMaster")",
+                                    data: { compid: id,month: month,ecr:ecr },
+                                    success: function (response) {
+                                    $('#table').jtable('load');
+                                    alert(response);
+                                },
+                                error: function () {
+                                }
+                            });
+                        }
+                        });
+        return $img;
+    }
+    },
+            },
+            formCreated: function (event, data) {
+                data.form.validationEngine();
+            },
+            formSubmitting: function (event, data) {
+                return data.form.validationEngine('validate');
+            },
+            formClosed: function (event, data) {
+                data.form.validationEngine('hide');
+                data.form.validationEngine('detach');
+            }
+        });
+
+        
+    });
+</script>
+

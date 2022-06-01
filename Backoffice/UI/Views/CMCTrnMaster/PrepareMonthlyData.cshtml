@@ -1,0 +1,351 @@
+﻿@using UI.Helper
+@{
+    ViewBag.Title = "PrepareMonthlyData";
+}
+
+<div class="panel panel-info topmar-10">
+    <div class="panel-heading">
+        @Html.MyActionLink("<span class='fa fa-dashboard fa-1x'></span> Dashboard", "Dashboard", "Index", "Dashboard", null, new { @class = "btn btn-info btn-sm" })
+        @Html.Partial("_CMCMenu")
+        @Html.DropDownList("months", new SelectList((ViewBag.Months) as SelectList, "Value", "Text"), "Monthly Data", new { @class = "search-box" })
+
+        <button id="upload" type="button" class="btn btn-info btn-sm">
+            <span class="fa fa-upload"></span> Select CSV File
+            <span id="load2" class="fa fa-spin fa-spinner"></span>
+        </button>
+
+        <button id="save" type="button" style="display:none" class="btn btn-success pull-right btn-sm">
+            <span class="fa fa-floppy-o"></span> Process
+            <span id="load1" class="fa fa-spin fa-spinner"></span>
+        </button>
+
+        <i title="refresh" id="refreshbtn" class="fa fa-refresh btn btn-success"></i>
+        <i title="helpfile" id="help" class="fa fa-question btn btn-success"> Help File</i>
+    </div>
+    <div class="panel-body">
+        <input type="file" id="UploadImg" multiple style="display:none" />
+        <div id="dialog-file" style="display: none"></div>
+        <div id="footer" class="table-responsive"></div>
+        <div id="table" class="table-responsive" style="display:none"></div>
+    </div>
+</div>
+
+@*Filtering*@
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#refreshbtn').click(function (e) {
+            $('#ECRType').val('');
+            $('#comp').val('');
+            $('#months').val('');
+        });
+
+        $('#help').click(function (e) {
+            var url = "/Upload/HelpFile/CMCMonthlyData.xls"
+            window.open(url);
+            e.preventDefault();
+        });
+
+
+        $("#save").click(function (e) {
+            e.preventDefault();
+            $('#load1').show();
+            var strconfirm = confirm("Are you sure you want process?");
+            if (strconfirm == true) {
+            $.ajax({
+                url: "/CMCTrnMaster/Process",
+                type: "POST",
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    //code after success
+                    $('#save').hide();
+                    $('#table').jtable('load');
+                    $('#footer').jtable('load');
+                    alert(response);
+                    $('#load1').hide();
+                },
+                error: function (er) {
+                    alert(er);
+                }
+
+            });
+        }
+        });
+
+    });
+</script>
+
+@*Main table*@
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#load').hide();
+        $('#load1').hide();
+        $('#load2').hide();
+        $("#message").fadeIn("Slow").delay(2000).fadeOut("Slow");
+
+        $('#table').jtable({
+            title: '',
+            paging: true,
+            pagesize: 3,
+            sorting: false,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '@Url.Action("DraftContList")',
+            },
+            fields: {
+                Id: {
+                    title: 'SrNo',
+                    width: '0.1%',
+                    key: true,
+                    create: false,
+                    edit: false,
+                    list: true
+                },
+                Month: {
+                    title: 'Month',
+                    width: '1%',
+                },
+                Code: {
+                    title: 'Code',
+                    width: '1%',
+                },
+                Name: {
+                    title: 'Name',
+                    width: '1%',
+                },
+                Account: {
+                    title: 'Account',
+                    width: '1%',
+                },
+                Honorarium: {
+                    title: 'Honorarium',
+                    width: '1%',
+                    display: function (data) {
+                        return addCommas(data.record.Honorarium.toFixed(0));
+                    }
+                },
+                Contingency: {
+                    title: 'Contingency',
+                    width: '1%',
+                    display: function (data) {
+                        return addCommas(data.record.Contingency.toFixed(0));
+                    }
+                },
+                TAOPE: {
+                    title: 'TA&OPE',
+                    width: '1%',
+                    display: function (data) {
+                        return addCommas(data.record.TAOPE.toFixed(0));
+                    }
+                },
+                TotalPayable: {
+                    title: 'TotalPaybale',
+                    width: '1%',
+                    display: function (data) {
+                        return addCommas(data.record.TotalPayable.toFixed(0));
+                    }
+                },
+                Review: {
+                    title: 'Review',
+                    width: '1%',
+                    display: function (data) {
+                        return addCommas(data.record.Review.toFixed(0));
+                    }
+                },
+                Meeting: {
+                    title: 'Meeting',
+                    width: '1%',
+                    display: function (data) {
+                        return addCommas(data.record.Meeting.toFixed(0));
+                    }
+                },
+                Claim: {
+                    title: 'Claim',
+                    width: '1%',
+                    display: function (data) {
+                        return addCommas(data.record.Claim.toFixed(0));
+                    }
+                },
+                NetPayable: {
+                    title: 'NetPayable',
+                    width: '1%',
+                    display: function (data) {
+                        return addCommas(data.record.NetPayable.toFixed(0));
+                    }
+                },
+                Remarks: {
+                    title: 'Remarks',
+                    width: '1%',
+                },
+            },
+            formCreated: function (event, data) {
+                data.form.validationEngine();
+            },
+            formSubmitting: function (event, data) {
+                return data.form.validationEngine('validate');
+            },
+            formClosed: function (event, data) {
+                data.form.validationEngine('hide');
+                data.form.validationEngine('detach');
+                $('#footer').jtable('load');
+            }
+        });
+
+        $("#upload").click(function (e) {
+            e.preventDefault();
+            var m = $("#months").val();
+            if (m == "") {
+                alert("Please select wage month!");
+                return;
+            }
+            $("#UploadImg").trigger('click');
+        });
+    });
+</script>
+
+@*Footer*@
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#footer').jtable({
+            title: 'Draft Grand Details',
+            paging: false,
+            pagesize: 3,
+            sorting: false,
+            actions: {
+                listAction: '@Url.Action("CMCFooterData")',
+            },
+            fields: {
+                Id: {
+                    title: '',
+                    width: '1%',
+                    key: true,
+                    create: false,
+                    edit: false,
+                    list: false
+                },
+                Month: {
+                    title: 'Month',
+                    width: '1%',
+                },
+                TotalMember: {
+                    title: 'TotalMember',
+                    width: '1%',
+                },
+                NoBank: {
+                    title: 'NoBankAccount',
+                    width: '1%',
+                },
+                Honorarium: {
+                    title: 'Honorarium',
+                    width: '1%',
+                    display: function (data) {
+                        return addCommas(data.record.Honorarium.toFixed(0));
+                    }
+                },
+                Contingency: {
+                    title: 'Contingency',
+                    width: '1%',
+                    display: function (data) {
+                        return addCommas(data.record.Contingency.toFixed(0));
+                    }
+                },
+                TAOPE: {
+                    title: 'TA&OPE',
+                    width: '1%',
+                    display: function (data) {
+                        return addCommas(data.record.TAOPE.toFixed(0));
+                    }
+                },
+                TotalPayable: {
+                    title: 'TotalPaybale',
+                    width: '1%',
+                    display: function (data) {
+                        return addCommas(data.record.TotalPayable.toFixed(0));
+                    }
+                },
+                Review: {
+                    title: 'Review',
+                    width: '1%',
+                    display: function (data) {
+                        return addCommas(data.record.Review.toFixed(0));
+                    }
+                },
+                Meeting: {
+                    title: 'Meeting',
+                    width: '1%',
+                    display: function (data) {
+                        return addCommas(data.record.Meeting.toFixed(0));
+                    }
+                },
+                Claim: {
+                    title: 'Claim',
+                    width: '1%',
+                    display: function (data) {
+                        return addCommas(data.record.Claim.toFixed(0));
+                    }
+                },
+                NetPayable: {
+                    title: 'NetPayable',
+                    width: '1%',
+                    display: function (data) {
+                        return addCommas(data.record.NetPayable.toFixed(0));
+                    }
+                },
+            },
+            formCreated: function (event, data) {
+                data.form.validationEngine();
+            },
+            formSubmitting: function (event, data) {
+                return data.form.validationEngine('validate');
+            },
+            formClosed: function (event, data) {
+                data.form.validationEngine('hide');
+                data.form.validationEngine('detach');
+            }
+        });
+
+
+    });
+</script>
+
+
+@*Upload File*@
+<script type="text/javascript">
+
+    $("#UploadImg").change(function () {
+        $('#load2').show();
+        var data = new FormData();
+        var files = $("#UploadImg").get(0).files;
+        if (files.length > 0) {
+            for (i = 0; i < files.length; i++) {
+                data.append("MyImages"+i,files[i]);
+            }
+        }
+        data.append("months", $("#months").val());
+        $.ajax({
+            url: "/CMCTrnMaster/UploadFile",
+            type: "POST",
+            processData: false,
+            contentType: false,
+            data: data,
+            success: function (response) {
+                //code after success
+                $('#table').jtable('load');
+                $('#footer').jtable('load');
+                $('#load2').hide();
+                $('#save').show();
+                $('#table').show();
+                alert(response);
+            },
+            error: function (er) {
+                alert(er);
+            }
+
+        });
+    });
+</script>
+
+
+

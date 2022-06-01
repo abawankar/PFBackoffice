@@ -1,0 +1,155 @@
+﻿@using UI.Helper
+@{
+    ViewBag.Title = "Billing Report";
+}
+
+<div class="panel panel-info topmar-10">
+    <div class="panel-heading">
+        @Html.MyActionLink("<span class='fa fa-dashboard fa-1x'></span> Dashboard", "Dashboard", "Index", "Dashboard", null, new { @class = "btn btn-info btn-sm" })
+        @Html.Partial("_BillingMenu")
+        @Html.DropDownList("BillingCompId", new SelectList((ViewBag.billingcomp) as SelectList, "Value", "Text"), "Select Billing Company", new { @class = "search-box" })
+        @Html.DropDownList("status", new SelectList((ViewBag.status) as SelectList, "Value", "Text"), "Select Status", new { @class = "search-box" })
+        Date From:<input class="search-box width-d" type="date" id="dateFrom" />To:<input class="search-box width-d" type="date" id="dateTo" /> 
+        <i title="search" id="searchbtn" class="fa fa-search btn btn-info"></i>
+        <i title="Export To Excel" id="export" style="display:none" class="fa fa-file-excel-o fa-1x btn btn-link pull-right"></i>
+    </div>
+    <div class="panel-body">
+        <div id="table"></div>
+    </div>
+</div>
+
+@*Filtering*@
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#export').click(function (e) {
+            var url = "/BillingMaster/Export";
+            window.open(url);
+            e.preventDefault();
+        });
+
+        $('#searchbtn').click(function (e) {
+            var id = $('#comp').val();
+            var datefrom = $('#dateFrom').val();
+            var dateto = $('#dateTo').val()
+
+            if (id == 0) {
+                alert("Select Company first!");
+                return;
+            }
+            $('#table').jtable('load', {
+                dtfrom:datefrom,dtto:dateto,status: $('#status').val(), billcompid: $('#BillingCompId').val(), compid: $('#CompId').val()
+            });
+            $('#export').show();
+        });
+    });
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#table').jtable({
+            title: 'Billing Report',
+            paging: true,
+            pagesize: 3,
+            sorting: true,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '@Url.Action("BillingList")',
+            },
+            fields: {
+                Id: {
+                    title: 'Id',
+                    width:'1%',
+                    key: true,
+                    create: false,
+                    edit: false,
+                    list: false
+                },
+                BillingCompId: {
+                    title: 'BillingCompany',
+                    width: '2%',
+                    edit: false,
+                    options: '@Url.Action("GetBillingCompanyOptions", "BillingCompany")',
+                },
+                Date: {
+                    title: 'Date',
+                    width: '0.5%',
+                    type: 'date',
+                    edit: false,
+                    display: function (data) {
+                        if (data.record.Date != null)
+                            return moment(data.record.Date).format('DD/MM/YYYY')
+                    },
+                },
+                BillNo: {
+                    title: 'BillNo',
+                    width: '0.5%',
+                    edit: false,
+                },
+                CompId: {
+                    title: 'Company',
+                    width: '2%',
+                    edit: false,
+                    options: '@Url.Action("GetCompanyOptions", "Company")',
+                },
+                
+                InvAmt: {
+                    title: 'TaxableAmount',
+                    width: '1%',
+                    edit: false,
+                    display: function (data) {
+                        return addCommas(data.record.InvAmt.toFixed(2));
+                    }
+                },
+                CGST: {
+                    title: 'CGST',
+                    width: '1%',
+                    edit: false,
+                    display: function (data) {
+                        return addCommas(data.record.CGST.toFixed(2));
+                    }
+                },
+                SGST: {
+                    title: 'SGST',
+                    width: '1%',
+                    edit: false,
+                    display: function (data) {
+                        return addCommas(data.record.SGST.toFixed(2));
+                    }
+                },
+                IGST: {
+                    title: 'IGST',
+                    width: '1%',
+                    edit: false,
+                    display: function (data) {
+                        return addCommas(data.record.IGST.toFixed(2));
+                    }
+                },
+                GrandTotal: {
+                    title: 'GrandTotal',
+                    width: '1%',
+                    edit: false,
+                    display: function (data) {
+                        return addCommas(data.record.GrandTotal.toFixed(2));
+                    }
+                },
+                Status: {
+                    title: 'Status',
+                    width: '0.5%',
+                    options: { "1": "Pending", "2": "Received", "3": "Cancelled" },
+                    display: function (data) {
+                        if (data.record.Status == 1)
+                            return "<div class='blue'>" + "Pending" + "</div>";
+                        if (data.record.Status == 2)
+                            return "<div class='green'>" + "Received" + "</div>";
+                        if (data.record.Status == 3)
+                            return "<div class='red'>" + "Cancelled" + "</div>";
+                    },
+                },
+            },
+        });
+    });
+</script>
+
+

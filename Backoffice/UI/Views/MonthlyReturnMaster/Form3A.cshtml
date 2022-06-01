@@ -1,0 +1,134 @@
+﻿@using UI.Helper
+@{
+    ViewBag.Title = "Form3A";
+}
+
+<div class="panel panel-info topmar-10">
+    <div class="panel-heading">
+        @Html.MyActionLink("<span class='fa fa-dashboard fa-1x'></span> Dashboard", "Dashboard", "Index", "Dashboard", null, new { @class = "btn btn-info btn-sm" })
+        @Html.DropDownList("fy", new SelectList((ViewBag.fy) as SelectList, "Value", "Text"), new { @class = "search-box" })
+        @Html.DropDownList("comp", new SelectList((ViewBag.comp) as SelectList, "Value", "Text"), "Select Company", new { @class = "search-box" })
+        <i title="Search.." id="searchbtn" class="fa fa-search btn btn-info"></i>
+        <i title="Print Form 3A of selected member" id="print" style="display:none" class="fa fa-print btn btn-info"></i>
+
+        <i title="Export To Excel" id="export" style="display:none" class="fa fa-file-excel-o fa-1x btn btn-link pull-right"></i>
+    </div>
+    <div class="panel-body">
+        <div id="table"></div>
+    </div>
+</div>
+
+@*Filtering*@
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#print').click(function (e) {
+            var $selecedRows = $('#table').jtable('selectedRows');
+            var list = "";
+            $selecedRows.each(function () {
+                var record = $(this).data('record');
+                list = list + "," + record.UAN;
+            });
+            var url = "Print?list="+list;
+            window.open(url);
+            e.preventDefault();
+        });
+
+        $('#export').click(function (e) {
+            var url = "Export";
+            window.open(url);
+            e.preventDefault();
+        });
+
+        $('#searchbtn').click(function (e) {
+            var id = $('#comp').val();
+            if (id == 0) {
+                alert("Select Company first!");
+                return;
+            }
+            $('#print').show();
+            $('#export').show();
+            $('#table').jtable('load', {
+                compid: $('#comp').val(), fy: $('#fy').val()
+            });
+        });
+       
+    });
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#table').jtable({
+            title: 'PF Anual Statement(Form 3A)',
+            paging: false,
+            pagesize: 3,
+            sorting: false,
+            selecting: true,
+            multiselect: true,
+            selectOnRowClick:false,
+            selectingCheckboxes: true,
+            actions: {
+                listAction: '@Url.Action("Form3AList")'
+            },
+            fields: {
+                UAN: {
+                    title: 'Id',
+                    width: '1%',
+                    key: true,
+                    create: false,
+                    edit: false,
+                    list: false
+                },
+                UAN: {
+                    title: 'UAN',
+                    width: '4%'
+                },
+                Name: {
+                    title: 'Name',
+                    width: '6%'
+                },
+                ContCount: {
+                    title: 'ContCount',
+                    width: '1%'
+                },
+                Wages: {
+                    title: 'Wages',
+                    width: '3%',
+                    display: function (data) {
+                        return '<div class="text-right">' + addCommas(data.record.Wages.toFixed(0)) + '</div>';
+                    }
+                },
+                SelfCont: {
+                    title: 'Employee Cont',
+                    width: '3%',
+                    display: function (data) {
+                        return '<div class="text-right">' + addCommas(data.record.SelfCont.toFixed(0)) + '</div>';
+                    }
+                },
+                ERCont: {
+                    title: 'Employer Cont',
+                    width: '3%',
+                    display: function (data) {
+                        return '<div class="text-right">' + addCommas(data.record.ERCont.toFixed(0)) + '</div>';
+                    }
+                },
+                EPSCont: {
+                    title: 'EPS Cont',
+                    width: '3%',
+                    display: function (data) {
+                        return '<div class="text-right">' + addCommas(data.record.EPSCont.toFixed(0)) + '</div>';
+                    }
+                },
+                Total: {
+                    title: 'Total',
+                    width: '3%',
+                    display: function (data) {
+                        return '<div class="text-right">' + addCommas(data.record.Total.toFixed(0)) + '</div>';
+                    }
+                },
+            },
+        });
+    });
+</script>
+
+

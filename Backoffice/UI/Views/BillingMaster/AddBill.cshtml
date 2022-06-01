@@ -1,0 +1,116 @@
+﻿@{
+    ViewBag.Title = "AddBill";
+}
+@using (Html.BeginForm("AddBill", "BillingMaster", FormMethod.Post))
+{
+    <div class="panel panel-info topmar-10">
+        <div class="panel-heading">
+            <a href="/BillingMaster" class="btn btn-success btn-sm">
+                <span class="fa fa-list-alt fa-1x"></span> View Billing
+            </a>
+            @Html.Partial("_BillingMenu")
+            <strong>Add New Billing</strong>
+        </div>
+        <div class="panel-body">
+            <form>
+                <div class="row">
+                    <div class="col-md-4 no-r-pad">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">Add Master Details</div>
+                            <div class="panel-body back-color">
+                                <div class="form-group">
+                                    <label for="Company">Company</label>
+                                    @Html.DropDownList("CompId", new SelectList((ViewBag.comp) as SelectList, "Value", "Text"), "Select Company", new { @class = "search-box form-control" })
+                                </div>
+                                <div class="form-group">
+                                    <label for="Billing Company">Billing Company</label>
+                                    @Html.DropDownList("BillingCompId", new SelectList((ViewBag.billingcomp) as SelectList, "Value", "Text"), "Select Billing Company", new { @class = "search-box form-control" })
+                                </div>
+                                <div class="form-group">
+                                    <label for="date">Date</label>
+                                    <input type="date" name="date" value="@ViewBag.today" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">Add Service Details</div>
+                            <div class="panel-body">
+                                <div id="table"></div>
+
+                                <button id="save" type="submit" class="btn btn-success btn-sm topmar-10">
+                                    <span class="fa fa-floppy-o"></span> Save
+                                    <span id="load" class="fa fa-spin fa-spinner"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#load').hide();
+
+        $('#table').jtable({
+            title: 'Service Details',
+            paging: false,
+            pagesize: 3,
+            sorting: false,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '@Url.Action("ServiceList")',
+                updateAction: '@Url.Action("UpdateService")',
+                createAction: '@Url.Action("AddService")'
+            },
+            fields: {
+                Id: {
+                    title: 'Id',
+                    width:'1%',
+                    key: true,
+                    create: false,
+                    edit: false,
+                    list: false
+                },
+                ServiceId: {
+                    title: 'ServiceName',
+                    width: '5%',
+                    options: '@Url.Action("GetServiceOptions", "ServiceName")',
+                },
+                MonthYear: {
+                    title: 'Month',
+                    width: '2%',
+                    options: '@Url.Action("GetBillingPeriod")',
+                },
+                Year: {
+                    title: 'Year',
+                    width: '2%',
+                    options: '@Url.Action("GetYear")',
+                },
+                Amount: {
+                    title: 'Amount',
+                    width: '2%'
+                },
+            },
+            formCreated: function (event, data) {
+                data.form.validationEngine();
+            },
+            formSubmitting: function (event, data) {
+                return data.form.validationEngine('validate');
+            },
+            formClosed: function (event, data) {
+                data.form.validationEngine('hide');
+                data.form.validationEngine('detach');
+            }
+        });
+        $('#table').jtable('load');
+    });
+    </script>
+
+}
+
+

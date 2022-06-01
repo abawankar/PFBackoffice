@@ -1,0 +1,192 @@
+﻿@using UI.Helper
+@{
+    ViewBag.Title = "ActiveMember";
+}
+
+<div class="panel panel-info topmar-10">
+    <div class="panel-heading">
+        @Html.MyActionLink("<span class='fa fa-dashboard fa-1x'></span> Dashboard", "Dashboard", "Index", "Dashboard", null, new { @class = "btn btn-info btn-sm" })
+        @Html.MyActionLink("<span class='fa fa-user fa-1x'></span> Employee", "Employee", "Index", "Employee", null, new { @class = "btn btn-info btn-sm" })
+        @Html.DropDownList("comp", new SelectList((ViewBag.comp) as SelectList, "Value", "Text"), "Select Company", new { @class = "search-box" })
+        @Html.DropDownList("Status", new SelectList((ViewBag.Status) as SelectList, "Value", "Text"), "Status", new { @class = "search-box" })
+        <input type="text" class="search-box font" id="search" placeholder="Search by" />
+        @Html.DropDownList("SearchFields", new SelectList((ViewBag.SearchFields) as SelectList, "Value", "Text"),new { @class = "search-box" })
+        <i title="search" id="searchbtn" class="fa fa-search btn btn-info"></i>
+        <i title="Genrate TXT file" id="exportbtn" class="fa fa-download btn btn-info hidden"> Bulk Exit File</i>
+        <i title="refresh" id="refreshbtn" class="fa fa-refresh btn btn-success"></i>
+        <i title="Export To Excel" id="export" style="display:none" class="fa fa-file-excel-o fa-1x btn btn-link pull-right"></i>
+    </div>
+
+    <div class="panel-body">
+        <div id="table"></div>
+    </div>
+</div>
+
+@*Filtering*@
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#exportbtn').click(function (e) {
+            e.preventDefault();
+            var $selecedRows = $('#table').jtable('selectedRows');
+            var list = 0;
+            $selecedRows.each(function () {
+                var record = $(this).data('record');
+                list = list + "," + record.Id;
+            });
+            var url = "GenrateTxtFile?list=" + list;
+            window.open(url);
+        });
+
+        $('#export').click(function (e) {
+            var url = "/Employee/ExportActiveMember";
+            window.open(url);
+            e.preventDefault();
+        });
+
+        $("#comp").change(function (e) {
+            e.preventDefault();
+            $('#table').jtable('load', {
+                compid: $('#comp').val()
+            });
+            $('#export').show();
+        });
+
+        $('#searchbtn').click(function (e) {
+            var id = $('#comp').val();
+            if (id == 0) {
+                alert("Select Company first!");
+                return;
+            }
+            var s = $("#Status").val();
+            if (s == 2) {
+                $('#exportbtn').removeClass("hidden");
+            }
+            else {
+                $('#exportbtn').addClass("hidden");
+            }
+            $('#table').jtable('load', {
+                status: $("#Status").val(), compid: $('#comp').val(), field: $('#SearchFields').val(), search: $('#search').val()
+            });
+        });
+
+        $('#refreshbtn').click(function (e) {
+            $('#search').val('');
+            $('#table').jtable('load', {
+                compid: $('#comp').val()
+            });
+        });
+
+    });
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#table').jtable({
+            title: 'Active Employee Details',
+            paging: true,
+            pagesize: 3,
+            sorting: false,
+            selecting: true,
+            multiselect: true,
+            selectOnRowClick: false,
+            selectingCheckboxes: true,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '@Url.Action("ActiveList")',
+            },
+            fields: {
+                Id: {
+                    title: 'Id',
+                    width:'1%',
+                    key: true,
+                    create: false,
+                    edit: false,
+                    list: false
+                },
+                UAN: {
+                    title: 'UAN',
+                    width: '2%'
+                },
+                EmpCode: {
+                    title: 'EmpCode',
+                    width: '2%'
+                },
+                Name: {
+                    title: 'Name',
+                    width: '2%'
+                },
+                Gender: {
+                    title: 'Gender',
+                    width: '2%',
+                    options: { "M": "Male", "F": "Female", "T":"Transgender"}
+                },
+                DOB: {
+                    title: 'DOB',
+                    width: '2%',
+                    type: 'date',
+                    display: function (data) {
+                        if (data.record.DOB != null)
+                            return moment(data.record.DOB).format('DD/MMM/YYYY')
+                    },
+                },
+                DOJ: {
+                    title: 'DOJ',
+                    width: '2%',
+                    type: 'date',
+                    display: function (data) {
+                        if (data.record.DOJ != null)
+                            return moment(data.record.DOJ).format('DD/MMM/YYYY')
+                    },
+                },
+                ForHName: {
+                    title: 'F/H Name',
+                    width: '2%'
+                },
+                ForHFlag: {
+                    title: 'F/H',
+                    width: '2%',
+                    options: { "F": "Father", "H": "Husband" }
+                },
+                MaritalStatus: {
+                    title: 'MaritalStatus',
+                    width: '2%',
+                    options: { "M": "Married", "U": "Un-Married", "T": "Widow/Widower", "D": "MaritalStatus" }
+                },
+                Mobile: {
+                    title: 'Mobile',
+                    width: '2%'
+                },
+                EmailId: {
+                    title: 'EmailId',
+                    width: '2%'
+                },
+                Aadhaar: {
+                    title: 'Aadhaar',
+                    width: '2%'
+                },
+                PAN: {
+                    title: 'PAN',
+                    width: '2%'
+                },
+                BankAcc: {
+                    title: 'BankAcc',
+                    width: '2%'
+                },
+                DOE: {
+                    title: 'DOE',
+                    width: '2%',
+                    type: 'date',
+                    display: function (data) {
+                        if (data.record.DOE != null)
+                            return moment(data.record.DOE).format('DD/MMM/YYYY')
+                    },
+                },
+            },
+        });
+        $('#table').jtable('load');
+    });
+</script>
+
+

@@ -1,0 +1,227 @@
+﻿@using UI.Helper
+@{
+    ViewBag.Title = "CreateESIEmp";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style type="text/css">
+    .form-group {
+        margin-bottom: 5px;
+    }
+
+    input {
+        max-width: 100%;
+    }
+</style>
+<div class="panel panel-info topmar-10">
+    <div class="panel-heading">
+        <strong> ESI Employee Registration</strong> |
+         @Html.MyActionLink("<span class='fa fa-upload fa-1x'></span> Bulk Upload", "Upload bulk new ESI Employee", "BulkESIEmpUpload", "ESIEmp", null, new { @class = "btn btn-link btn-sm" })
+    </div>
+    <div class="panel-body">
+        <div class="panel panel-default no-b-margin" id="empdetails">
+            <div class="panel-body">
+
+                <div class="col-md-6 nolrpad">
+                    <div class="panel panel-warning">
+                        <div class="panel-heading text-center">
+                            <span class="fa fa-id-card-o"></span>  Basic Details
+                        </div>
+                        <div class="panel-body bg-warning">
+                            <div id="reviseSalary" class="container form-horizontal">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4">Company Name <label class="text-danger">*</label></label>
+                                        <div class="col-md-8">
+                                            <input  class="form-control" type="text" name="CompName" id="CompName" placeholder="Company Name" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4">Branch</label>
+                                        <div class="col-md-8">
+                                            <input class="form-control" type="text" name="branch" id="branch" placeholder="Branch name if any" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4">Emp Code</label>
+                                        <div class="col-md-8">
+                                            <input required class="form-control" type="text" name="EmpCode" id="EmpCode" placeholder="Employee Code" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4">Name <label class="text-danger">*</label> </label>
+                                        <div class="col-md-8">
+                                            <input class="form-control" type="text" name="Name" id="Name" placeholder="Name" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4">Father Name <label class="text-danger">*</label></label>
+                                        <div class="col-md-8">
+                                            <input class="form-control" type="text" name="FName" id="FName" placeholder="Father Name" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4">DOB <label class="text-danger">*</label></label>
+                                        <div class="col-md-8">
+                                            <input class="form-control" type="date" name="DOB" id="DOB" placeholder="Date of Birth" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4">DOJ <label class="text-danger">*</label></label>
+                                        <div class="col-md-8">
+                                            <input class="form-control" type="date" name="DOJ" id="DOJ" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4">Gender <label class="text-danger">*</label></label>
+                                        <div class="col-md-8">
+                                            @Html.DropDownList("Gender", new SelectList((ViewBag.Gender) as SelectList, "Value", "Text"), "Select Gender", new { @class = "search-box" })
+                                        </div>
+                                    </div>
+
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="panel panel-warning">
+                        <div class="panel-heading text-center">
+                            <span class="fa fa-id-card-o"></span>  Other Details
+                        </div>
+                        <div class="panel-body bg-warning">
+                            <div id="reviseSalary" class="container form-horizontal">
+                                <div class="col-md-12">
+                                    
+                                    <div class="form-group">
+                                        <label class="control-label col-md-5">Present Address <label class="text-danger">*</label></label>
+                                        <div class="col-md-7">
+                                            <textarea class="search-box" type="text" name="PAddress" id="PAddress"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-5">Permanent Address <label class="text-danger">*</label></label>
+                                        <div class="col-md-7">
+                                            <textarea class="search-box" type="text" name="PrAddress" id="PrAddress"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-5">Nominee Name <label class="text-danger">*</label></label>
+                                        <div class="col-md-7">
+                                            <input class="form-control" type="text" name="NName" id="NName" placeholder="Nominee Name" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-5">Nominee Relation <label class="text-danger">*</label></label>
+                                        <div class="col-md-7">
+                                            @Html.DropDownList("NomRelation", new SelectList((ViewBag.Relation) as SelectList, "Value", "Text"), "Select Nom Relation", new { @class = "search-box" })
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-5">Nominee Address</label>
+                                        <div class="col-md-7">
+                                            <textarea class="search-box" type="text" name="NomAddress" id="NomAddress"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-5">Old Ins If Any</label>
+                                        <div class="col-md-7">
+                                            <input class="form-control" type="text" name="OldIns" id="OldIns" placeholder="Old insurence if any" />
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="col-md-12 text-right">
+                                    <div class="form-group">
+                                        <div class="col-md-offset-2 col-md-10">
+                                            <label class="text-danger">*</label>  Mandatory Required fields
+                                            <button id="btnSave" type="button" class="btn btn-success btn-sm">
+                                                <span class="fa fa-save fa-1x"> Submit</span>
+                                                <span id="load" class="fa fa-spin fa-spinner fa-1x"></span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+  
+</div>
+
+@*Filtering*@
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#load').hide();
+
+        $("#btnSave").click(function () {
+
+            var fields = ["#CompName", "#Name","#FName", "#DOB", "#DOJ", "#Gender","#PAddress","#PrAddress","#NName","#NomRelation"]
+            var i, l = fields.length;
+            var fieldname;
+            for (i = 0; i < l; i++) {
+                fieldname = fields[i];
+                if ($(fieldname).val()=="") {
+                    alert(fieldname + " can not be empty");
+                    $(fieldname).focus();
+                    return false;
+                }
+            }
+            var CompName = $("#CompName").val();
+            var EmpCode = $("#EmpCode").val();
+            var Name = $("#Name").val();
+            var FName = $("#FName").val();
+            var DOB = $("#DOB").val();
+            var DOJ = $("#DOJ").val();
+            var Gender = $("#Gender").val();
+            var PAddress = $("#PAddress").val();
+            var PrAddress = $("#PrAddress").val();
+            var NName = $("#NName").val();
+            var NomRelation = $("#NomRelation").val();
+            if (CompName == "")
+            {
+                alert("Please select company Name");
+                return;
+            }
+
+
+            $('#load').show();
+            var objemp = {};                      //same action as per creating the user
+            objemp.CompName = $("#CompName").val();
+            objemp.EmpCode = $("#EmpCode").val();
+            objemp.Name = $("#Name").val();
+            objemp.FName = $("#FName").val();
+            objemp.DOB = $("#DOB").val();
+            objemp.DOJ = $("#DOJ").val();
+            objemp.Gender = $("#Gender").val();
+            objemp.PAddress = $("#PAddress").val();
+            objemp.PrAddress = $("#PrAddress").val();
+            objemp.NName = $("#NName").val();
+            objemp.NomRelation = $("#NomRelation").val();
+            objemp.NomAddress = $("#NomAddress").val();
+            objemp.OldIns = $("#OldIns").val();
+
+            $.post("/ESIEmp/CreateEsiEmp", { objemp: objemp }, function (data) {
+                if (data != null) {
+                    alert("Employee detals saved Successfully");
+                    location.reload();
+                }
+                else {
+                    alert("Error");
+                }
+            });
+        })
+
+    });
+</script>
+
+

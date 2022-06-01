@@ -1,0 +1,183 @@
+﻿@using UI.Helper
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="panel panel-info topmar-10">
+    <div class="panel-heading">
+        @Html.MyActionLink("<span class='fa fa-dashboard fa-1x'></span> Dashboard", "Dashboard", "Index", "Dashboard", null, new { @class = "btn btn-info btn-sm" })
+        @Html.MyActionLink("<span class='fa fa-building fa-1x'></span> Company", "Company", "Index", "Company", null, new { @class = "btn btn-info btn-sm" })
+        @Html.DropDownList("comp", new SelectList((ViewBag.comp) as SelectList, "Value", "Text"), "Select Company", new { @class = "search-box" })
+        <input type="text" class="search-box font" id="search" placeholder="Search by" />
+        @Html.DropDownList("SearchFields", new SelectList((ViewBag.SearchFields) as SelectList, "Value", "Text"), new { @class = "search-box" })
+        <i title="search" id="searchbtn" class="fa fa-search btn btn-info"></i>
+        <i title="refresh" id="refreshbtn" class="fa fa-refresh btn btn-success"></i>
+        <i title="Export To Excel" id="export" style="display:none" class="fa fa-file-excel-o fa-1x btn btn-link pull-right"></i>
+    </div>
+    <div class="panel-body">
+        <div id="table"></div>
+    </div>
+</div>
+
+@*Filtering*@
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#export').click(function (e) {
+            var url = "/ESIEmployee/ExportMember";
+            window.open(url);
+            e.preventDefault();
+        });
+
+        $("#comp").change(function (e) {
+            e.preventDefault();
+            $('#table').jtable('load', {
+                compid: $('#comp').val()
+            });
+            $('#export').show();
+        });
+
+        $('#searchbtn').click(function (e) {
+            var id = $('#comp').val();
+            if (id == 0) {
+                alert("Select Company first!");
+                return;
+            }
+            $('#table').jtable('load', {
+                compid: $('#comp').val(), field: $('#SearchFields').val(), search: $('#search').val()
+            });
+        });
+
+        $('#search').bind('keyup', function (e) {
+            if (e.which == 13) {
+                var id = $('#comp').val();
+                if (id == 0) {
+                    alert("Select Company first!");
+                    return;
+                }
+                $('#table').jtable('load', {
+                    compid: $('#comp').val(), field: $('#SearchFields').val(), search: $('#search').val()
+                });
+            }
+        });
+
+        $('#refreshbtn').click(function (e) {
+            $('#search').val('');
+            $('#Status').val('');
+            $('#table').jtable('load', {
+                compid: $('#comp').val()
+            });
+        });
+
+    });
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#table').jtable({
+            title: 'ESI Employee Details',
+            paging: true,
+            pagesize: 3,
+            sorting: true,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '@Url.Action("List")',
+                updateAction: '@Url.Action("Update")',
+            },
+            fields: {
+                Id: {
+                    title: 'Id',
+                    width:'1%',
+                    key: true,
+                    create: false,
+                    edit: false,
+                    list: false
+                },
+                CompName: {
+                    title: 'Company',
+                    width: '2%',
+                },
+                EmpCode: {
+                    title: 'EmpCode',
+                    width: '1%',
+                    edit: false,
+                },
+                Name: {
+                    title: 'Name',
+                    width: '5%',
+                },
+                FName: {
+                    title: 'FatherName',
+                    width: '2%',
+                },
+                DOB: {
+                    title: 'DOB',
+                    width: '1%',
+                    type: 'date',
+                    edit: false,
+                    display: function (data) {
+                        if (data.record.DOB != null)
+                            return moment(data.record.DOB).format('DD/MMM/YYYY')
+                    },
+                },
+                DOJ: {
+                    title: 'DOJ',
+                    width: '1%',
+                    type: 'date',
+                    edit: false,
+                    display: function (data) {
+                        if (data.record.DOJ != null)
+                            return moment(data.record.DOJ).format('DD/MMM/YYYY')
+                    },
+                },
+                Gender: {
+                    title: 'Gender',
+                    width: '1%',
+                    options: { "M": "Male", "F": "Female", "T": "Transgender" }
+                },
+                PAddress: {
+                    title: 'PressentAddress',
+                    width: '5%',
+                    type:'textarea',
+                },
+                PrAddress: {
+                    title: 'PermanentAddress',
+                    width: '5%',
+                    type: 'textarea',
+                },
+                NName: {
+                    title: 'NomineeName',
+                    width: '2%',
+                },
+                NomRelation: {
+                    title: 'RelationWithMember',
+                    width: '2%',
+                },
+                NomAddress: {
+                    title: 'NomineeAddress',
+                    width: '5%',
+                    type: 'textarea',
+                },
+                OldIns: {
+                    title: 'OldInsNoIf',
+                    width: '2%',
+                },
+                
+            },
+            formCreated: function (event, data) {
+                data.form.validationEngine();
+            },
+            formSubmitting: function (event, data) {
+                return data.form.validationEngine('validate');
+            },
+            formClosed: function (event, data) {
+                data.form.validationEngine('hide');
+                data.form.validationEngine('detach');
+            }
+        });
+    });
+</script>
+
+

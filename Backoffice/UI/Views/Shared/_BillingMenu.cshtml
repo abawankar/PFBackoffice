@@ -1,0 +1,13 @@
+﻿<div class="btn-group dropdown">
+    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <span class="caret"></span>
+        <span class="sr-only">Toggle Dropdown</span>
+    </button>
+    <ul class="dropdown-menu">
+        <li>@Html.ActionLink("Billing Company", "Index", "BillingCompany")</li>
+        <li>@Html.ActionLink("Service Name", "Index", "ServiceName")</li>
+        <li>@Html.ActionLink("View Billing", "Index", "BillingMaster")</li>
+        <li>@Html.ActionLink("Add Billing", "AddBill", "BillingMaster")</li>
+        <li>@Html.ActionLink("Billing Report", "BillingReport", "BillingMaster")</li>
+    </ul>
+</div>

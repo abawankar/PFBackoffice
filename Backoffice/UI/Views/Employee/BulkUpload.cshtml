@@ -1,0 +1,260 @@
+﻿@using UI.Helper
+@{
+    ViewBag.Title = "Bulk Upload - Employee";
+}
+
+<div class="panel panel-info topmar-10">
+    <div class="panel-heading">
+        @Html.MyActionLink("<span class='fa fa-dashboard fa-1x'></span> Dashboard", "Dashboard", "Index", "Dashboard", null, new { @class = "btn btn-info btn-sm" })
+        @Html.MyActionLink("<span class='fa fa-users fa-1x'></span> Employee", "Employee", "Index", "Employee", null, new { @class = "btn btn-info btn-sm" })
+        @Html.MyActionLink("<span class='fa fa-download fa-1x'></span> Download TXT File", "Download txt file for upload", "ExportEmployee", "Export", null, new { @class = "btn btn-info btn-sm" })
+        @Html.DropDownList("comp", new SelectList((ViewBag.comp) as SelectList, "Value", "Text"), "Select Company", new { @class = "search-box" })
+        <button id="upload" type="button" class="btn btn-info btn-sm">
+            <span class="fa fa-upload"></span> Select CSV File
+            <span id="load" class="fa fa-spin fa-spinner"></span>
+        </button>
+
+        <button id="save" type="button" style="display:none" class="btn btn-success pull-right btn-sm">
+            <span class="fa fa-floppy-o"></span> Save
+            <span id="load1" class="fa fa-spin fa-spinner"></span>
+        </button>
+        <i title="refresh" id="help" class="fa fa-question btn btn-success"> Help File</i>
+        @if (TempData["Message"] != null)
+        {
+            <div id="message" class="success"> @TempData["Message"] </div>
+        }
+    </div>
+    <div class="panel-body">
+        <input type="file" id="UploadImg" multiple style="display:none" />
+        <div id="dialog-file" style="display: none"> </div>
+        <div id="table" class="table-responsive"></div>
+    </div>
+</div>
+
+@*Filtering*@
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#help').click(function (e) {
+            var url = "/Upload/HelpFile/BulkEmployee.xls"
+            window.open(url);
+            e.preventDefault();
+        });
+    });
+</script>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#load').hide();
+        $('#load1').hide();
+        $("#message").fadeIn("Slow").delay(2000).fadeOut("Slow");
+
+        $('#table').jtable({
+            title: 'Draft Employee',
+            paging: false,
+            pagesize: 3,
+            sorting: false,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '@Url.Action("BulkList")',
+            },
+            fields: {
+                Id: {
+                    title: 'Id',
+                    width: '1%',
+                    key: true,
+                    create: false,
+                    edit: false,
+                    list: false
+                },
+                CompId: {
+                    title: 'Company',
+                    width: '2%',
+                    options: '@Url.Action("GetCompanyOptions", "Company")',
+                },
+                Branch: {
+                    title: 'Branch',
+                    width: '2%'
+                },
+                EmpCode: {
+                    title: 'EmpCode',
+                    width: '2%'
+                },
+                Name: {
+                    title: 'Name',
+                    width: '2%'
+                },
+                UAN: {
+                    title: 'UAN',
+                    width: '2%'
+                },
+                MemberId: {
+                    title: 'MemberId',
+                    width: '2%'
+                },
+                ESIIP: {
+                    title: 'ESIIP',
+                    width: '2%',
+                },
+                Gender: {
+                    title: 'Gender',
+                    width: '2%',
+                    options: { "M": "Male", "F": "Female", "T": "Transgender" }
+                },
+                MaritalStatus: {
+                    title: 'MaritalStatus',
+                    width: '2%',
+                    options: { "M": "Married", "U": "Un-Married", "W": "Widow/Widower", "D": "Divorse" }
+                },
+                Mobile: {
+                    title: 'Mobile',
+                    width: '2%',
+                    list: false
+                },
+                EmailId: {
+                    title: 'EmailId',
+                    width: '2%',
+                    list: false
+                },
+                Nationality: {
+                    title: 'Nationality',
+                    width: '2%',
+                    options: '@Url.Action("GetNationality", "Country")',
+                },
+                ForHName: {
+                    title: 'F/H Name',
+                    width: '2%'
+                },
+                ForHFlag: {
+                    title: 'F/H',
+                    width: '2%',
+                    options: { "F": "Father", "H": "Husband" }
+                },
+                DOB: {
+                    title: 'DOB',
+                    width: '2%',
+                    type: 'date',
+                    display: function (data) {
+                        if (data.record.DOB != null)
+                            return moment(data.record.DOB).format('DD/MMM/YYYY')
+                    },
+                },
+                DOJ: {
+                    title: 'DOJ',
+                    width: '2%',
+                    type: 'date',
+                    display: function (data) {
+                        if (data.record.DOJ != null)
+                            return moment(data.record.DOJ).format('DD/MMM/YYYY')
+                    },
+                },
+                CellingEPF: {
+                    title: 'CellingEPF',
+                    width: '2%',
+                    options: { "Y": "Yes", "N": "No" }
+                },
+                CellingEPS: {
+                    title: 'CellingEPS',
+                    width: '2%',
+                    options: { "Y": "Yes", "Z": "Zero", "N": "No" }
+                },
+                VPF: {
+                    title: 'VPF',
+                    width: '2%'
+                },
+                PFExempted: {
+                    title: 'PFExempted',
+                    width: '1%',
+                    options: { "N": "No", "Y": "Yes" }
+                },
+                ESIExempted: {
+                    title: 'ESIExempted',
+                    width: '1%',
+                    options: { "Y": "Yes", "N": "No" }
+                },
+                Aadharno: {
+                    title: 'Aadharno',
+                    width: '2%'
+                },
+            },
+            formCreated: function (event, data) {
+                data.form.validationEngine();
+            },
+            formSubmitting: function (event, data) {
+                return data.form.validationEngine('validate');
+            },
+            formClosed: function (event, data) {
+                data.form.validationEngine('hide');
+                data.form.validationEngine('detach');
+            }
+        });
+
+        $("#upload").click(function (e) {
+            e.preventDefault();
+            var id = $("#comp").val();
+            if (id == "") {
+                alert("Please select Company First!");
+                return;
+            }
+            $("#UploadImg").trigger('click');
+        });
+
+
+        $("#save").click(function (e) {
+            e.preventDefault();
+            $('#load1').show();
+            $.ajax({
+                url: "/Employee/SaveBulk",
+                type: "POST",
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    //code after success
+                    $('#save').hide();
+                    $('#table').jtable('load');
+                    alert(response);
+                    $('#load1').hide();
+                },
+                error: function (er) {
+                    alert(er);
+                }
+
+            });
+        });
+    });
+</script>
+
+<script type="text/javascript">
+
+    $("#UploadImg").change(function () {
+        $('#load').show();
+        var data = new FormData();
+        var files = $("#UploadImg").get(0).files;
+        if (files.length > 0) {
+            for (i = 0; i < files.length; i++) {
+                data.append("MyImages"+i,files[i]);
+            }
+        }
+        data.append("compid", $("#comp").val());
+        $.ajax({
+            url: "/Employee/UploadFile",
+            type: "POST",
+            processData: false,
+            contentType: false,
+            data: data,
+            success: function (response) {
+                //code after success
+                $('#table').jtable('load');
+                $('#load').hide();
+                $('#save').show();
+                alert(response);
+            },
+            error: function (er) {
+                alert(er);
+            }
+
+        });
+    });
+</script>
+

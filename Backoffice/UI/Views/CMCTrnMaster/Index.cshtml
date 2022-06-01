@@ -1,0 +1,291 @@
+﻿@using UI.Helper
+@{
+    ViewBag.Title = "View Monthly CMC Data";
+}
+
+<div class="panel panel-info topmar-10">
+    <div class="panel-heading">
+        @Html.MyActionLink("<span class='fa fa-dashboard fa-1x'></span> Dashboard", "Dashboard", "Index", "Dashboard", null, new { @class = "btn btn-info btn-sm" })
+        @Html.Partial("_CMCMenu")
+        <i title="refresh" id="refreshbtn" class="fa fa-refresh btn btn-success"></i>
+    </div>
+    <div class="panel-body">
+        <div id="table" class="table-responsive"></div>
+    </div>
+</div>
+
+@*Filtering*@
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#refreshbtn').click(function (e) {
+            $('#comp').val('');
+            $('#table').jtable('load');
+        });
+
+        $("#comp").change(function (e) {
+            e.preventDefault();
+            $('#table').jtable('load', {
+                id: $('#comp').val()
+            });
+        });
+
+        $('#pmtrcpt').click(function (e) {
+            var url = "https://unifiedportal-epfo.epfindia.gov.in/publicPortal/no-auth/misReport/home/loadSearchTrrnHome"
+            window.open(url);
+            e.preventDefault();
+        });
+    });
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#load').hide();
+        $('#load1').hide();
+        $("#message").fadeIn("Slow").delay(2000).fadeOut("Slow");
+
+        $('#table').jtable({
+            title: 'CMC Monthly Data',
+            paging: true,
+            pagesize: 3,
+            sorting: false,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '@Url.Action("List")',
+                updateAction: '@Url.Action("Update")',
+            },
+            fields: {
+                Id: {
+                    title: 'Id',
+                    width: '1%',
+                    key: true,
+                    create: false,
+                    edit: false,
+                    list: false
+                },
+                ContributionDetails: {
+                    title: 'Month',
+                    width: '1%',
+                    sorting: false,
+                    create: false,
+                    edit: false,
+                    listClass: 'child-opener-image-column',
+                    display: function (comp) {
+                        var $img = $('<span title="ContributionDetails" class="1x pointer text-primary">' + comp.record.MonthYear + "</span>");
+                        $img.click(function () {
+                            $('#table').jtable('openChildTable', $img.closest('tr'),
+                            {
+                                title: "Member Monthly Details-" + comp.record.MonthYear,
+                                paging: true,
+                                pagesize: 3,
+                                actions: {
+                                    listAction: '@Url.Action("FullDetails")?id=' + comp.record.Id
+                                },
+                                fields: {
+                                    Id: {
+                                        title: 'Id',
+                                        width: '1%',
+                                        key: true,
+                                        create: false,
+                                        edit: false,
+                                        list: false
+                                    },
+                                    Code: {
+                                        title: 'Code',
+                                        width: '1%',
+                                    },
+                                    Name: {
+                                        title: 'Name',
+                                        width: '1%',
+                                    },
+                                    Account: {
+                                        title: 'Account',
+                                        width: '1%',
+                                    },
+                                    Honorarium: {
+                                        title: 'Honorarium',
+                                        width: '1%',
+                                        display: function (data) {
+                                            return addCommas(data.record.Honorarium.toFixed(0));
+                                        }
+                                    },
+                                    Contingency: {
+                                        title: 'Contingency',
+                                        width: '1%',
+                                        display: function (data) {
+                                            return addCommas(data.record.Contingency.toFixed(0));
+                                        }
+                                    },
+                                    TAOPE: {
+                                        title: 'TA&OPE',
+                                        width: '1%',
+                                        display: function (data) {
+                                            return addCommas(data.record.TAOPE.toFixed(0));
+                                        }
+                                    },
+                                    TotalPayable: {
+                                        title: 'TotalPaybale',
+                                        width: '1%',
+                                        display: function (data) {
+                                            return addCommas(data.record.TotalPayable.toFixed(0));
+                                        }
+                                    },
+                                    Review: {
+                                        title: 'Review',
+                                        width: '1%',
+                                        display: function (data) {
+                                            return addCommas(data.record.Review.toFixed(0));
+                                        }
+                                    },
+                                    Meeting: {
+                                        title: 'Meeting',
+                                        width: '1%',
+                                        display: function (data) {
+                                            return addCommas(data.record.Meeting.toFixed(0));
+                                        }
+                                    },
+                                    Claim: {
+                                        title: 'Claim',
+                                        width: '1%',
+                                        display: function (data) {
+                                            return addCommas(data.record.Claim.toFixed(0));
+                                        }
+                                    },
+                                    NetPayable: {
+                                        title: 'NetPayable',
+                                        width: '1%',
+                                        display: function (data) {
+                                            return addCommas(data.record.NetPayable.toFixed(0));
+                                        }
+                                    },
+                                    Remarks: {
+                                        title: 'Remarks',
+                                        width: '1%',
+                                    },
+                                },
+                            }, function (data) {
+                                data.childTable.jtable('load');
+                            });
+                        });
+                        return $img;
+                    }
+                },
+                TotalMember: {
+                    title: 'TotalMember',
+                    width: '0.1%',
+                },
+                Honorarium: {
+                    title: 'Honorarium',
+                    width: '1%',
+                    display: function (data) {
+                        return addCommas(data.record.Honorarium.toFixed(0));
+                    }
+                },
+                Contingency: {
+                    title: 'Contingency',
+                    width: '1%',
+                    display: function (data) {
+                        return addCommas(data.record.Contingency.toFixed(0));
+                    }
+                },
+                TAOPE: {
+                    title: 'TA&OPE',
+                    width: '1%',
+                    display: function (data) {
+                        return addCommas(data.record.TAOPE.toFixed(0));
+                    }
+                },
+                TotalPayable: {
+                    title: 'TotalPaybale',
+                    width: '1%',
+                    display: function (data) {
+                        return addCommas(data.record.TotalPayable.toFixed(0));
+                    }
+                },
+                Review: {
+                    title: 'Review',
+                    width: '1%',
+                    display: function (data) {
+                        return addCommas(data.record.Review.toFixed(0));
+                    }
+                },
+                Meeting: {
+                    title: 'Meeting',
+                    width: '1%',
+                    display: function (data) {
+                        return addCommas(data.record.Meeting.toFixed(0));
+                    }
+                },
+                Claim: {
+                    title: 'Claim',
+                    width: '1%',
+                    display: function (data) {
+                        return addCommas(data.record.Claim.toFixed(0));
+                    }
+                },
+                NetPayable: {
+                    title: 'NetPayable',
+                    width: '1%',
+                    display: function (data) {
+                        return addCommas(data.record.NetPayable.toFixed(0));
+                    }
+                },
+                BankTrnH: {
+                    title: "BankTrn(Hon..)",
+                    edit: false,
+                    create: false,
+                    width: '0.1%',
+                    display: function (data) {
+                        var $img = $('<i title="Download Honorarium Bank transfer file" class="fa fa-download fa-1x pointer text-primary"/>');
+                        $img.click(function () {
+                            url = "CMCTrnMaster/DownloadHonorarium?id=" + data.record.Id + "&month=" + data.record.MonthYear;
+                            window.open(url);
+                        });
+                        return $img;
+                    }
+                },
+                BankTrn: {
+                    title: "BankTrn(Exp..)",
+                    edit: false,
+                    create: false,
+                    width: '0.1%',
+                    display: function (data) {
+                        var $img = $('<i title="Download other expences Bank transfer file" class="fa fa-download fa-1x pointer text-primary"/>');
+                        $img.click(function () {
+                            url = "CMCTrnMaster/DownloadExpences?id=" + data.record.Id + "&month=" + data.record.MonthYear;
+                            window.open(url);
+                        });
+                        return $img;
+                    }
+                },
+                XlsECR: {
+                    title: "Excel",
+                    edit: false,
+                    create: false,
+                    width: '0.1%',
+                    display: function (data) {
+                        var $img = $('<i title="Download Monthly Process Data File" class="fa fa-file-excel-o fa-1x pointer text-primary"/>');
+                        $img.click(function () {
+                            url = "CMCTrnMaster/ExportTrn?id=" + data.record.Id + "&month=" + data.record.MonthYear;
+                            window.open(url);
+                        });
+                        return $img;
+                    }
+                },
+            },
+            formCreated: function (event, data) {
+                data.form.validationEngine();
+            },
+            formSubmitting: function (event, data) {
+                return data.form.validationEngine('validate');
+            },
+            formClosed: function (event, data) {
+                data.form.validationEngine('hide');
+                data.form.validationEngine('detach');
+            }
+        });
+
+        $('#table').jtable('load');
+    });
+</script>
+

@@ -1,0 +1,398 @@
+﻿@using UI.Helper
+@{
+    ViewBag.Title = "Monthly Return - Draft";
+}
+
+<div class="panel panel-info topmar-10">
+    <div class="panel-heading">
+        @Html.MyActionLink("<span class='fa fa-dashboard fa-1x'></span> Dashboard", "Dashboard", "Index", "Dashboard", null, new { @class = "btn btn-info btn-sm" })
+        <div class="btn-group dropdown">
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="caret"></span>
+                <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu">
+                <li>@Html.ActionLink("View Monthly Contribution", "Index", "ESIMonthlyContMaster")</li>
+            </ul>
+        </div>
+        @Html.DropDownList("ECRType", new SelectList((ViewBag.ECRType) as SelectList, "Value", "Text"), "Contribution Type", new { @class = "search-box" })
+        @Html.DropDownList("comp", new SelectList((ViewBag.comp) as SelectList, "Value", "Text"), "Select Company", new { @class = "search-box" })
+        @Html.DropDownList("months", new SelectList((ViewBag.Months) as SelectList, "Value", "Text"), "Contribution Month", new { @class = "search-box" })
+
+        <button id="lastMonth" type="button" class="btn btn-info btn-sm">
+            <span class="fa fa-upload"></span> Get Contribution
+            <span id="load" class="fa fa-spin fa-spinner"></span>
+        </button>
+
+        <button id="upload" type="button" class="btn btn-info btn-sm">
+            <span class="fa fa-upload"></span> Select CSV File
+            <span id="load2" class="fa fa-spin fa-spinner"></span>
+        </button>
+
+        <button id="save" type="button" style="display:none" class="btn btn-success pull-right btn-sm">
+            <span class="fa fa-floppy-o"></span> Process
+            <span id="load1" class="fa fa-spin fa-spinner"></span>
+        </button>
+
+        <i title="refresh" id="refreshbtn" class="fa fa-refresh btn btn-success"></i>
+        <i title="refresh" id="help" class="fa fa-question btn btn-success"> Help File</i>
+    </div>
+    <div class="panel-body">
+        <input type="file" id="UploadImg" multiple style="display:none" />
+        <div id="dialog-file" style="display: none"></div>
+        <div id="footer" class="table-responsive"></div>
+        <div id="table" class="table-responsive" style="display:none"></div>
+    </div>
+</div>
+
+@*Filtering*@
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#refreshbtn').click(function (e) {
+            $('#ECRType').val('');
+            $('#comp').val('');
+            $('#months').val('');
+        });
+
+        $('#help').click(function (e) {
+            var url = "/Upload/HelpFile/ESIMonthlyContribution.xls"
+            window.open(url);
+            e.preventDefault();
+        });
+
+        $('#lastMonth').click(function (e) {
+            e.preventDefault();
+            $('#load').show();
+            var id = $("#comp").val();
+            var ecr = $("#ECRType").val();
+            var m = $("#months").val();
+            if (id == "") {
+                alert("Please select Compaany!");
+                return;
+            }
+            if (ecr == "") {
+                alert("Please select Contribution Type!");
+                return;
+            }
+            if (m == "") {
+                alert("Please select Contribution month!");
+                return;
+            }
+
+            var id = $("#comp").val();
+            var ecr = $("#ECRType").val();
+            var month = $("#months").val();
+            var strconfirm = confirm("Are you sure you want to get details?");
+            if (strconfirm == true) {
+                $.ajax({
+                    type: 'POST',
+                    datatype: 'JSON',
+                    url: "@Url.Action("LastMonthReturn", "ESIMonthlyContMaster")",
+                    data: { compid: id,month: month,ecr:ecr },
+                        success: function (response) {
+                        $('#table').jtable('load');
+                        alert(response);
+                        var r = response.includes("Error")
+                        if (r == false) {
+                            $('#save').show();
+                            $('#table').show();
+                            $('#load').hide();
+                            $('#footer').jtable('load');
+                        }
+                        else {
+                            $('#save').hide();
+                            $('#load').hide();
+                            $('#table').show();
+                        }
+                },
+                error: function () {
+                }
+            });
+        }
+
+        });
+
+        $("#save").click(function (e) {
+            e.preventDefault();
+            $('#load1').show();
+            var strconfirm = confirm("Are you sure you want process?");
+            if (strconfirm == true) {
+            $.ajax({
+                url: "/ESIMonthlyContMaster/Process",
+                type: "POST",
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    //code after success
+                    $('#save').hide();
+                    $('#table').jtable('load');
+                    $('#footer').jtable('load');
+                    alert(response);
+                    $('#load1').hide();
+                },
+                error: function (er) {
+                    alert(er);
+                }
+
+            });
+        }
+        });
+
+    });
+</script>
+
+@*Main table*@
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#load').hide();
+        $('#load1').hide();
+        $('#load2').hide();
+        $("#message").fadeIn("Slow").delay(2000).fadeOut("Slow");
+
+        $('#table').jtable({
+            title: '',
+            paging: false,
+            pagesize: 3,
+            sorting: false,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '@Url.Action("DraftContList")',
+                updateAction: '@Url.Action("UpdateDraft")',
+            },
+            fields: {
+                Id: {
+                    title: 'Sr',
+                    width: '1%',
+                    key: true,
+                    create: false,
+                    edit: false,
+                    list: true
+                },
+                CompId: {
+                    title: 'Company',
+                    width: '4%',
+                    options: '@Url.Action("GetCompanyOptions", "Company")',
+                    edit: false,
+                },
+                Branch: {
+                    title: 'Branch',
+                    width: '4%',
+                    edit: false,
+                },
+                EmpCode: {
+                    title: 'EmpCode',
+                    width: '1%',
+                    input: function (data) {
+                        if (data.value) {
+                            return '<input type="text" readonly class="jtable-input-readonly" name="EmpCode" value="' + data.value + '"/>';
+                        }
+                    }
+                },
+                Name: {
+                    title: 'Name',
+                    width: '5%',
+                    input: function (data) {
+                        if (data.value) {
+                            return '<input type="text" readonly class="jtable-input-readonly" name="Name" value="' + data.value + '"/>';
+                        }
+                    }
+                },
+                IP: {
+                    title: 'IP',
+                    width: '2%',
+                    input: function (data) {
+                        if (data.value) {
+                            return '<input type="text" readonly class="jtable-input-readonly" name="UAN" value="' + data.value + '"/>';
+                        }
+                    }
+                },
+                ContType: {
+                    title: 'ContType',
+                    width: '2%',
+                    options: { "M": "MonthlyContribution", "S": "SupplimentaryContribution" },
+                    edit: false,
+                },
+                MonthYear: {
+                    title: 'MonthYear',
+                    width: '2%',
+                    input: function (data) {
+                        if (data.value) {
+                            return '<input type="text" readonly class="jtable-input-readonly" name="MonthYear" value="' + data.value + '"/>';
+                        }
+                    }
+                },
+                GrossWages: {
+                    title: 'GrossWages',
+                    width: '2%',
+                    listClass:'text-right'
+                },
+                IPCont: {
+                    title: 'IPCont',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                Days: {
+                    title: 'Days',
+                    width: '2%',
+                    listClass:'text-right'
+                },
+                DOL: {
+                    title: 'DOL',
+                    width: '2%',
+                    type: 'date',
+                    display: function (data) {
+                        if (data.record.DOL != null)
+                            return moment(data.record.DOL).format('DD/MM/YYYY')
+                    },
+                },
+            },
+            formCreated: function (event, data) {
+                data.form.validationEngine();
+            },
+            formSubmitting: function (event, data) {
+                return data.form.validationEngine('validate');
+            },
+            formClosed: function (event, data) {
+                data.form.validationEngine('hide');
+                data.form.validationEngine('detach');
+                $('#footer').jtable('load');
+            }
+        });
+
+        $("#upload").click(function (e) {
+            e.preventDefault();
+            var id = $("#comp").val();
+            var ecr = $("#ECRType").val();
+            var m = $("#months").val();
+            if (id == "") {
+                alert("Please select Compaany!");
+                return;
+            }
+            if (ecr == "") {
+                alert("Please select ECR Type!");
+                return;
+            }
+            if (m == "") {
+                alert("Please select wage month!");
+                return;
+            }
+            $('#load2').show();
+            $("#UploadImg").trigger('click');
+        });
+    });
+</script>
+
+@*Footer*@
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#footer').jtable({
+            title: 'Draft Return',
+            paging: false,
+            pagesize: 3,
+            sorting: false,
+            actions: {
+                listAction: '@Url.Action("FooterData")',
+            },
+            fields: {
+                Id: {
+                    title: '',
+                    width: '1%',
+                    key: true,
+                    create: false,
+                    edit: false,
+                    list: false
+                },
+                ESIMember: {
+                    title: 'ESIMember',
+                    width: '1%',
+                },
+                TotalIP: {
+                    title: 'TotalIPContributon',
+                    width: '1%',
+                    display: function (data) {
+                        return addCommas(data.record.TotalIP.toFixed(0));
+                    }
+                },
+                TotalER: {
+                    title: 'TotalERContribution',
+                    width: '1%',
+                    display: function (data) {
+                        return addCommas(data.record.TotalER.toFixed(0));
+                    }
+                },
+                TotalCont: {
+                    title: 'TotalCont',
+                    width: '1%',
+                    display: function (data) {
+                        return addCommas(data.record.TotalCont.toFixed(0));
+                    }
+                },
+                TotalGovtCont: {
+                    title: 'TotalGovtCont',
+                    width: '1%',
+                },
+                TotalWages: {
+                    title: 'TotalWages',
+                    width: '1%',
+                    display: function (data) {
+                        return addCommas(data.record.TotalWages.toFixed(0));
+                    }
+                },
+            },
+            formCreated: function (event, data) {
+                data.form.validationEngine();
+            },
+            formSubmitting: function (event, data) {
+                return data.form.validationEngine('validate');
+            },
+            formClosed: function (event, data) {
+                data.form.validationEngine('hide');
+                data.form.validationEngine('detach');
+            }
+        });
+
+   
+    });
+</script>
+
+
+@*Upload File*@
+<script type="text/javascript">
+
+    $("#UploadImg").change(function () {
+        $('#load2').show();
+        var data = new FormData();
+        var files = $("#UploadImg").get(0).files;
+        if (files.length > 0) {
+            for (i = 0; i < files.length; i++) {
+                data.append("MyImages"+i,files[i]);
+            }
+        }
+        data.append("compid", $("#comp").val());
+        data.append("ECRType", $("#ECRType").val());
+        data.append("months", $("#months").val());
+        $.ajax({
+            url: "/ESIMonthlyContMaster/UploadFile",
+            type: "POST",
+            processData: false,
+            contentType: false,
+            data: data,
+            success: function (response) {
+                //code after success
+                $('#table').jtable('load');
+                $('#footer').jtable('load');
+                $('#load2').hide();
+                $('#save').show();
+                $('#table').show();
+                alert(response);
+            },
+            error: function (er) {
+                alert(er);
+            }
+
+        });
+    });
+</script>
+

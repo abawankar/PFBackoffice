@@ -1,0 +1,104 @@
+﻿@using UI.Helper
+@{
+    ViewBag.Title = "Import KYC";
+}
+
+<div class="panel panel-info topmar-10">
+    <div class="panel-heading">
+        @Html.MyActionLink("<span class='fa fa-dashboard fa-1x'></span> Dashboard", "Dashboard", "Index", "Dashboard", null, new { @class = "btn btn-info btn-sm" })
+        @Html.DropDownList("comp", new SelectList((ViewBag.comp) as SelectList, "Value", "Text"), "Select Company", new { @class = "search-box" })
+        <i title="Export" id="exportbtn" class="fa fa-download btn btn-info hidden"> Export</i>
+    </div>
+    <div class="panel-body">
+        <div id="table"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $("#comp").change(function (e) {
+            e.preventDefault();
+            var id = $("#comp").val();
+            if (id == "")
+            {
+                $("#exportbtn").addClass("hidden");
+            }
+            else {
+                $("#exportbtn").removeClass("hidden");
+            }
+            $('#table').jtable('load', {
+                compid: $("#comp").val()
+            });
+        });
+
+        $('#exportbtn').click(function (e) {
+            e.preventDefault();
+            var $selecedRows = $('#table').jtable('selectedRows');
+            var list = 0;
+            $selecedRows.each(function () {
+                var record = $(this).data('record');
+                list = list + "," + record.Id;
+            });
+            var url = "ProcessKYC?list=" + list;
+            window.open(url);
+            $("#comp").val('');
+            $("#exportbtn").addClass("hidden");
+            $('#table').jtable('load', {
+                compid: $("#comp").val()
+            });
+        });
+    });
+</script>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#table').jtable({
+            title: 'KYC Details',
+            paging: true,
+            pagesize: 3,
+            sorting: true,
+            selecting: true,
+            multiselect: true,
+            selectOnRowClick: false,
+            selectingCheckboxes: true,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '@Url.Action("KycList")',
+            },
+            fields: {
+                Id: {
+                    title: 'Id',
+                    width:'1%',
+                    key: true,
+                    create: false,
+                    edit: false,
+                    list: false
+                },
+                UAN: {
+                    title: 'UAN',
+                    width: '4%'
+                },
+                DoxType: {
+                    title: 'DoxType',
+                    width: '4%',
+                    options: '@Url.Action("GetKYCdoxtype", "Employee")',
+                },
+                DocumentNumber: {
+                    title: 'DocumentNumber',
+                    width: '4%'
+                },
+                NameonDox: {
+                    title: 'NameonDox',
+                    width: '4%'
+                },
+                Other: {
+                    title: 'Other',
+                    width: '4%'
+                },
+            },
+        });
+    });
+</script>

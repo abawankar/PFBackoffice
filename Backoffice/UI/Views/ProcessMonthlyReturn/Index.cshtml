@@ -1,0 +1,394 @@
+﻿@using UI.Helper
+@{
+    ViewBag.Title = "Process Draft Return";
+}
+
+<div class="panel panel-info topmar-10">
+    <div class="panel-heading">
+        @Html.MyActionLink("<span class='fa fa-dashboard fa-1x'></span> Dashboard", "Dashboard", "Index", "Dashboard", null, new { @class = "btn btn-info btn-sm" })
+        <div class="btn-group dropdown">
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="caret"></span>
+                <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu">
+                <li>@Html.ActionLink("Export LastMonth Salary", "ExportLastMonth", "MonthlyReturnMaster")</li>
+                <li>@Html.ActionLink("Prepare Monthly Return", "Index", "MonthlyReturnDraft")</li>
+                <li>@Html.ActionLink("Monthly PF Return", "Index", "MonthlyReturnMaster")</li>
+            </ul>
+        </div>
+        @Html.DropDownList("comp", new SelectList((ViewBag.comp) as SelectList, "Value", "Text"), "Select Company", new { @class = "search-box" })
+        <i title="refresh" id="refreshbtn" class="fa fa-refresh btn btn-success"></i>
+    </div>
+    <div class="panel-body">
+        <div id="table" class="table-responsive"></div>
+    </div>
+</div>
+
+@*Filtering*@
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $("#comp").change(function (e) {
+            e.preventDefault();
+            $('#table').jtable('load', {
+                id: $('#comp').val()
+            });
+        });
+
+    });
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#load').hide();
+        $('#load1').hide();
+        $("#message").fadeIn("Slow").delay(2000).fadeOut("Slow");
+
+        $('#table').jtable({
+            title: 'Process Draft Return',
+            paging: false,
+            pagesize: 3,
+            sorting: false,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '@Url.Action("DraftList")',
+            },
+            fields: {
+                Id: {
+                    title: 'Id',
+                    width: '1%',
+                    key: true,
+                    create: false,
+                    edit: false,
+                    list: false
+                },
+                CompId: {
+                    title: 'Company',
+                    width: '2%',
+                    options: '@Url.Action("GetCompanyOptions", "Company")',
+                },
+                ECRType: {
+                    title: 'ECRType',
+                    width: '2%',
+                    options: { "E": "ECR", "A": "Arrear", "S": "Suppliment" },
+                },
+                ContributionDetails: {
+                    title: 'WageMonth',
+                    width: '0.1%',
+                    sorting: false,
+                    create: false,
+                    edit: false,
+                    listClass: 'child-opener-image-column',
+                    display: function (comp) {
+                        var $img = $('<span title="ContributionDetails" class="1x pointer text-primary">' + comp.record.MonthYear + "</span>");
+                        $img.click(function () {
+                            $('#table').jtable('openChildTable', $img.closest('tr'),
+                            {
+                                title: "Contribution Details-" + comp.record.MonthYear,
+                                paging: true,
+                                pagesize: 3,
+                                actions: {
+                                    listAction: '@Url.Action("DraftFullDetails")?month=' + comp.record.MonthYear + '&compid=' + comp.record.CompId + '&ecr=' + comp.record.ECRType,
+                                    updateAction: '@Url.Action("UpdateReturn")',
+                                },
+                                fields: {
+                                    Id: {
+                                        title: 'Id',
+                                        width: '1%',
+                                        key: true,
+                                        create: false,
+                                        edit: false,
+                                        list: false
+                                    },
+                                    Branch: {
+                                        title: 'Branch',
+                                        width: '4%',
+                                    },
+                                    EmpCode: {
+                                        title: 'EmpCode',
+                                        width: '1%',
+                                        input: function (data) {
+                                            if (data.value) {
+                                                return '<input type="text" readonly class="jtable-input-readonly" value="' + data.value + '"/>';
+                                            }
+                                        }
+                                    },
+                                    Name: {
+                                        title: 'Name',
+                                        width: '4%',
+                                        input: function (data) {
+                                            if (data.value) {
+                                                return '<input type="text" readonly class="jtable-input-readonly" value="' + data.value + '"/>';
+                                            }
+                                        }
+                                    },
+                                    UAN: {
+                                        title: 'UAN',
+                                        width: '2%',
+                                        input: function (data) {
+                                            if (data.value) {
+                                                return '<input type="text" readonly class="jtable-input-readonly" value="' + data.value + '"/>';
+                                            }
+                                        }
+                                    },
+                                    GrossWages: {
+                                        title: 'GrossWages',
+                                        width: '2%',
+                                        listClass:'text-right'
+                                    },
+                                    EPFWages: {
+                                        title: 'EPFWages',
+                                        width: '2%',
+                                        listClass: 'text-right'
+                                    },
+                                    EPSWages: {
+                                        title: 'EPSWages',
+                                        width: '2%',
+                                        listClass: 'text-right'
+                                    },
+                                    EDLIWages: {
+                                        title: 'EDLIWages',
+                                        width: '2%',
+                                        listClass: 'text-right'
+                                    },
+                                    EECont: {
+                                        title: 'EECont',
+                                        width: '2%',
+                                        listClass: 'text-right'
+                                    },
+                                    EPSCont: {
+                                        title: 'EPSCont',
+                                        width: '2%',
+                                        listClass: 'text-right'
+                                    },
+                                    ERCont: {
+                                        title: 'ERCont',
+                                        width: '2%',
+                                        listClass: 'text-right'
+                                    },
+                                    NCPDays: {
+                                        title: 'NCPDays',
+                                        width: '2%',
+                                        listClass: 'text-right'
+                                    },
+                                    ESIWages: {
+                                        title: 'ESIWages',
+                                        width: '2%',
+                                        listClass: 'text-right'
+                                    },
+                                },
+                                toolbar: {
+                                    items: [{
+                                        icon: '/Content/themes/base/images/update.png',
+                                        text: 'Update UAN',
+                                        click: function () {
+                                            var ecrtype = comp.record.ECRType
+                                            if(ecrtype =='S')
+                                            {
+                                                UpdateUAN(comp.record.CompId, comp.record.ECRType, comp.record.MonthYear)
+                                            }
+                                            else
+                                            {
+                                                alert("ECR type should be Suppliment.");
+                                            }
+                                        }
+                                    }]
+                                },
+                                formCreated: function (event, data) {
+                                    data.form.find('input[name="FName"]').addClass('validate[required]');
+                                    data.form.validationEngine();
+                                },
+                                formSubmitting: function (event, data) {
+                                    return data.form.validationEngine('validate');
+                                },
+                                formClosed: function (event, data) {
+                                    data.form.validationEngine('hide');
+                                    data.form.validationEngine('detach');
+                                }
+                            }, function (data) {
+                                data.childTable.jtable('load');
+                            });
+                        });
+                        return $img;
+                    }
+                },
+                ExemptedEmp: {
+                    title: 'Exempted Emp',
+                    width: '1%',
+                },
+                EPFEmp: {
+                    title: 'EPFEmp',
+                    width: '1%',
+                },
+                EPSEmp: {
+                    title: 'EPSEmp',
+                    width: '1%',
+                },
+                ExemptedGrossWages: {
+                    title: 'Exempted GrossWages',
+                    width: '1%',
+                    listClass:'text-right',
+                    display: function (data) {
+                        return addCommas(data.record.ExemptedGrossWages.toFixed(0));
+                    }
+                },
+                ExemptedWages: {
+                    title: 'Exempted Wages',
+                    width: '2%',
+                    listClass: 'text-right',
+                    display: function (data) {
+                        return addCommas(data.record.ExemptedWages.toFixed(0));
+                    }
+                },
+                EPFGrossWages: {
+                    title: 'EPFGrossWages',
+                    width: '2%',
+                    listClass: 'text-right',
+                    display: function (data) {
+                        return addCommas(data.record.EPFGrossWages.toFixed(0));
+                    }
+                },
+                EPFWages: {
+                    title: 'EPFWages',
+                    width: '2%',
+                    listClass:'text-right'
+                },
+                EPSWages: {
+                    title: 'EPSWages',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                EECont: {
+                    title: 'EECont',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                EPSCont: {
+                    title: 'EPSCont',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                ERCont: {
+                    title: 'ERCont',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                NCPDays: {
+                    title: 'NCPDays',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                ESIWages: {
+                    title: 'ESIWages',
+                    width: '2%',
+                    listClass: 'text-right'
+                },
+                XlsECR: {
+                    title: "ECRFile",
+                    edit: false,
+                    create: false,
+                    width: '1%',
+                    listClass:'text-center',
+                    display: function (data) {
+                        var $img = $('<i title="Download ECR File" class="fa fa-file-excel-o fa-1x pointer text-primary"/>');
+                        $img.click(function () {
+                            url = "ProcessMonthlyReturn/ECRxls?month=" + data.record.MonthYear + '&compid=' + data.record.CompId + '&ecr=' + data.record.ECRType,
+                            window.open(url);
+                        });
+                        return $img;
+                    }
+                },
+                Process: {
+                    title: "",
+                    edit: false,
+                    create: false,
+                    width: '1%',
+                    display: function (data) {
+                        var $img = $('<i title="Process" class="fa fa-gear fa-1x pointer text-primary"/>');
+                        $img.click(function () {
+                            var id = data.record.CompId;
+                            var month = data.record.MonthYear;
+                            var ecr = data.record.ECRType;
+                            var strconfirm = confirm("Are you sure you want to process?");
+                            if (strconfirm == true) {
+                                $.ajax({
+                                    type: 'POST',
+                                    datatype: 'JSON',
+                                    url: "@Url.Action("Process", "ProcessMonthlyReturn")",
+                                    data: { compid: id,month: month,ecr:ecr },
+                                success: function (response) {
+                                    $('#table').jtable('load');
+                                    alert(response);
+                                },
+                                error: function () {
+                                }
+                            });
+                            }
+                        });
+                        return $img;
+                    }
+                },
+                Delete: {
+                    title: "",
+                    edit: false,
+                    create: false,
+                    width: '1%',
+                    display: function (data) {
+                        var $img = $('<i title="Delete" class="fa fa-trash fa-1x pointer text-primary"/>');
+                        $img.click(function () {
+                            var id = data.record.CompId;
+                            var month = data.record.MonthYear;
+                            var ecr = data.record.ECRType;
+                            var strconfirm = confirm("Are you sure you want to delete?");
+                            if (strconfirm == true) {
+                                $.ajax({
+                                    type: 'POST',
+                                    datatype: 'JSON',
+                                    url: "@Url.Action("DeleteDraft", "ProcessMonthlyReturn")",
+                                    data: { compid: id,month: month,ecr:ecr },
+                                    success: function (response) {
+                                        $('#table').jtable('load');
+                                        alert(response);
+                                },
+                                error: function () {
+                                }
+                            });
+                        }
+                        });
+                        return $img;
+                    }
+               },
+            },
+            formCreated: function (event, data) {
+                data.form.validationEngine();
+            },
+            formSubmitting: function (event, data) {
+                return data.form.validationEngine('validate');
+            },
+            formClosed: function (event, data) {
+                data.form.validationEngine('hide');
+                data.form.validationEngine('detach');
+            }
+        });
+
+        $('#table').jtable('load');
+    });
+</script>
+
+<script type="text/javascript">
+
+    function UpdateUAN(CompId, ECRType,MonthYear) {
+
+        $.get("/ProcessMonthlyReturn/UpdateUAN", { CompId: CompId, ECRType: ECRType, MonthYear: MonthYear }, function (data) {              //fetching data of the selected user from controller  
+            if (data = "Done") {
+                alert("Uan Updated Successfully");
+                $('#table').jtable('load');      //for refreshing the page after saving
+            }
+            else {
+                alert("Error");
+            }
+        });
+    }
+
+</script>

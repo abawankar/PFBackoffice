@@ -1,0 +1,147 @@
+﻿@using UI.Helper
+@{
+    ViewBag.Title = "ExportEmployee";
+}
+
+<div class="panel panel-info topmar-10">
+    <div class="panel-heading">
+        @Html.MyActionLink("<span class='fa fa-dashboard fa-1x'></span> Dashboard", "Dashboard", "Index", "Dashboard", null, new { @class = "btn btn-info btn-sm" })
+        @Html.DropDownList("comp", new SelectList((ViewBag.comp) as SelectList, "Value", "Text"), "Select Company", new { @class = "search-box" })
+        <i title="Export" id="exportbtn" class="fa fa-download btn btn-info hidden"> Export</i>
+    </div>
+    <div class="panel-body">
+        <div id="table"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $("#comp").change(function (e) {
+            e.preventDefault();
+            var id = $("#comp").val();
+            if (id == "")
+            {
+                $("#exportbtn").addClass("hidden");
+            }
+            else {
+                $("#exportbtn").removeClass("hidden");
+            }
+            $('#table').jtable('load', {
+                compid: $("#comp").val()
+            });
+        });
+
+        $('#exportbtn').click(function (e) {
+            e.preventDefault();
+            var $selecedRows = $('#table').jtable('selectedRows');
+            var list = 0;
+            $selecedRows.each(function () {
+                var record = $(this).data('record');
+                list = list + "," + record.Id;
+            });
+            var url = "ProcessEmp?list=" + list;
+            window.open(url);
+            $("#comp").val('');
+            $("#exportbtn").addClass("hidden");
+            $('#table').jtable('load', {
+                compid: $("#comp").val()
+            });
+        });
+    });
+</script>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#table').jtable({
+            title: 'Employee Details',
+            paging: true,
+            pagesize: 3,
+            sorting: true,
+            selecting: true,
+            multiselect: true,
+            selectOnRowClick: false,
+            selectingCheckboxes: true,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '@Url.Action("EmpList")',
+            },
+            fields: {
+                Id: {
+                    title: 'Id',
+                    width:'1%',
+                    key: true,
+                    create: false,
+                    edit: false,
+                    list: false
+                },
+               CompId: {
+                    title: 'Company',
+                    width: '2%',
+                    options: '@Url.Action("GetCompanyOptions", "Company")',
+                },
+                UAN: {
+                    title: 'UAN',
+                    width: '2%'
+                },
+                Name: {
+                    title: 'Name',
+                    width: '2%'
+                },
+                Gender: {
+                    title: 'Gender',
+                    width: '2%',
+                    options: { "M": "Male", "F": "Female", "T":"Transgender"}
+                },
+                Nationality: {
+                    title: 'Nationality',
+                    width: '2%'
+                },
+                MaritalStatus: {
+                    title: 'MaritalStatus',
+                    width: '2%',
+                    options: { "M": "Married", "U": "Un-Married", "T": "Widow/Widower", "D": "MaritalStatus" }
+                },
+                Nationality: {
+                    title: 'Nationality',
+                    width: '2%',
+                    options: '@Url.Action("GetNationality", "Country")',
+                },
+                ForHName: {
+                    title: 'F/H Name',
+                    width: '2%'
+                },
+                ForHFlag: {
+                    title: 'F/H',
+                    width: '2%',
+                    options:{"F":"Father","H":"Husband"}
+                },
+                DOB: {
+                    title: 'DOB',
+                    width: '2%',
+                    type: 'date',
+                    display: function (data) {
+                        if (data.record.DOB != null)
+                            return moment(data.record.DOB).format('DD/MMM/YYYY')
+                    },
+                },
+                DOJ: {
+                    title: 'DOJ',
+                    width: '2%',
+                    type: 'date',
+                    display: function (data) {
+                        if (data.record.DOJ != null)
+                            return moment(data.record.DOJ).format('DD/MMM/YYYY')
+                    },
+                },
+                Aadhaar: {
+                    title: 'Aadhaar',
+                    width: '2%'
+                },
+            },
+        });
+    });
+</script>
+

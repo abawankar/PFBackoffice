@@ -1,0 +1,49 @@
+﻿@using UI.Helper
+@{
+    ViewBag.Title = "Bulk Delete Employee";
+}
+
+<div class="panel panel-info topmar-10">
+    <div class="panel-heading">
+        @Html.MyActionLink("<span class='fa fa-dashboard fa-1x'></span> Dashboard", "Dashboard", "Index", "Dashboard", null, new { @class = "btn btn-info btn-sm" })
+        @Html.MyActionLink("<span class='fa fa-upload fa-1x'></span> Bulk Employee", "Upload Bulk Employee", "BulkUpload", "Employee", null, new { @class = "btn btn-info btn-sm" })
+        @Html.DropDownList("comp", new SelectList((ViewBag.comp) as SelectList, "Value", "Text"),"Select Company", new { @class = "search-box" })
+        <i title="Delete Bulk Employee" id="export" style="display:none" class="fa fa-trash-o fa-1x btn btn-sm"></i>
+    </div>
+    <div class="panel-body">
+        <div class="alert alert-warning fade in">
+            <span class="fa fa-sticky-note-o fa-2x"></span>
+            <strong>Note!</strong> <br /><br />
+            <strong>Please keep ahead only you are sure you want to delete</strong><br />
+            <strong>Doing this Employee recored will permantly deleted</strong><br />
+            <strong>Keep the genrated file, to bulk upload back of deleted employee</strong><br />
+            <br />
+            <strong>@TempData["Message"]</strong>
+        </div>
+    </div>
+</div>
+
+@*Filtering*@
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#export').hide();
+
+        $('#export').click(function (e) {
+            var id = $('#comp').val();
+            var strconfirm = confirm("Are you sure you want to get details?");
+            if (strconfirm == true) {
+                var url = "/Employee/ProcessDelete?id=" + id;
+                window.open(url);
+            }
+            e.preventDefault();
+        });
+
+        $("#comp").change(function (e) {
+            e.preventDefault();
+            $('#export').show();
+        });
+
+    });
+</script>
+

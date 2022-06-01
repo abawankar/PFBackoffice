@@ -1,0 +1,109 @@
+﻿@using UI.Helper
+@{
+    ViewBag.Title = "StatutoryCode";
+}
+<style>
+    input, select, textarea {
+        max-width:180px;
+    }
+</style>
+
+<div class="panel panel-info topmar-10">
+    <div class="panel-heading">
+        @Html.MyActionLink("<span class='fa fa-dashboard fa-1x'></span> Dashboard", "Dashboard", "Index", "Dashboard", null, new { @class = "btn btn-info btn-sm" })
+        @Html.MyActionLink("<span class='fa fa-building fa-1x'></span> Company", "Company", "Index", "Company", null, new { @class = "btn btn-info btn-sm" })
+    </div>
+    <div class="panel-body">
+        <div id="table"></div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#table').jtable({
+            title: 'Statutory Code',
+            paging: true,
+            pagesize: 3,
+            sorting: true,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '@Url.Action("List")',
+                updateAction: '@Url.Action("Update")',
+                createAction: '@Url.Action("Create")'
+            },
+            fields: {
+                Id: {
+                    title: 'Id',
+                    width:'1%',
+                    key: true,
+                    create: false,
+                    edit: false,
+                    list: false
+                },
+                Code: {
+                    title: 'Code',
+                    width: '1%'
+                },
+                PFPercent: {
+                    title: 'PF Percent',
+                    width: '2%'
+                },
+                AdminAct2: {
+                    title: 'Admin A/c2',
+                    width: '2%'
+                },
+                Act10: {
+                    title: 'A/c10',
+                    width: '2%',
+                },
+                EDLIAct21: {
+                    title: 'EDLI A/c21',
+                    width: '2%'
+                },
+                AdminAct22: {
+                    title: 'Admin A/c22',
+                    width: '2%'
+                },
+                AdminMinChar: {
+                    title: 'AdminMinCharges',
+                    width: '2%'
+                },
+                EPSLimit: {
+                    title: 'EPS Limit',
+                    width: '2%'
+                },
+                PFLimit: {
+                    title: 'PF Limit',
+                    width: '2%'
+                },
+                ESIEmpRate: {
+                    title: 'ESI EmpRate',
+                    width: '2%'
+                },
+                ESIERRate: {
+                    title: 'ESI ERRate',
+                    width: '2%'
+                },
+                ESILimit: {
+                    title: 'ESI Limit',
+                    width: '2%'
+                },
+
+                
+            },
+            formCreated: function (event, data) {
+                data.form.validationEngine();
+            },
+            formSubmitting: function (event, data) {
+                return data.form.validationEngine('validate');
+            },
+            formClosed: function (event, data) {
+                data.form.validationEngine('hide');
+                data.form.validationEngine('detach');
+            }
+        });
+        $('#table').jtable('load');
+    });
+</script>
