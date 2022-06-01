@@ -3,6 +3,6 @@
 - Help PF consultant to streamline their work in effective manner
 - Bulk upload and updation with zero error while processing data
 - Automation help to upload the correct file in minimum time
-- Refer [ Backoffice.pdf ](/Backoffice.pdf)
+- Refer [ Backoffice.pdf ](Backoffice.pdf)
  form the repository for full presentation
 
